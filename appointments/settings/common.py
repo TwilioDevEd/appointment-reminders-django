@@ -36,7 +36,7 @@ DJANGO_APPS = (
 )
 
 THIRD_PARTY_APPS = (
-
+    'bootstrap3',
 )
 
 LOCAL_APPS = (
@@ -61,7 +61,7 @@ ROOT_URLCONF = 'appointments.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates/'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
