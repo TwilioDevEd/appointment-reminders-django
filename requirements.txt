@@ -1,0 +1,6 @@
+# Requirements for the appointments Django project
+
+celery==3.1.18
+Django==1.8.2
+django-crispy-forms==1.4.0
+gunicorn==19.3.0
