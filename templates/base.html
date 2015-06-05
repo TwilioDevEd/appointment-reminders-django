@@ -28,11 +28,11 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="#">Appointment Reminders</a>
+        <a class="navbar-brand" href="/">Appointment Reminders</a>
         <div class="navbar-collapse collapse navbar-responsive-collapse">
           <ul class="nav navbar-nav">
-<!--             <li><%= link_to "Create", new_appointment_path  %></li>
-            <li><%= link_to "List", appointments_path  %></li> -->
+            <li><a href="{% url 'new_appointment' %}">New</a></li>
+            <li><a href="{% url 'list_appointments' %}">List</a></li>
           </ul>
         </div>
       </div>
