@@ -37,10 +37,11 @@ DJANGO_APPS = (
 
 THIRD_PARTY_APPS = (
     'bootstrap3',
+    'django_forms_bootstrap'
 )
 
 LOCAL_APPS = (
-
+    'reminders',
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

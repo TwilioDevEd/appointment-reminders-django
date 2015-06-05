@@ -1,3 +1,7 @@
-from django.shortcuts import render
+from django.views.generic.edit import CreateView
 
-# Create your views here.
+from .models import Appointment
+
+class AppointmentCreateView(CreateView):
+    model = Appointment
+    fields = ['name', 'phone_number', 'time']
