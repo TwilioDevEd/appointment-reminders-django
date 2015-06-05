@@ -19,10 +19,8 @@
       </dl>
 
       <a class="btn btn-default" href="{% url 'list_appointments' %}">Back</a>
-      {% comment %}
       <a class="btn btn-default" href="{% url 'edit_appointment' appointment.id %}">Edit</a>
       <a class="btn btn-danger" data-method="delete" href="{% url 'delete_appointment' appointment.id %}">Delete</a>
-      {% endcomment %}
     </div>
   </div>
 {% endblock %}

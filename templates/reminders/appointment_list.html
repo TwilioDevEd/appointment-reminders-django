@@ -10,6 +10,10 @@
         <h1>Appointments</h1>
       </div>
 
+      {% if not object_list %}
+        <p><strong>No upcoming appointments.</strong> Why not <a href="{% url 'new_appointment' %}">schedule one?</a>
+      {% endif %}
+
       <table class="table table-striped">
         <thead>
           <tr>
@@ -24,16 +28,14 @@
         <tbody>
           {% for appointment in object_list %}
             <tr>
-              <td><a href="{{ appointment }}">{{ appointment.pk }}</a></td>
+              <td><a href="{{ appointment.get_absolute_url }}">{{ appointment.pk }}</a></td>
               <td>{{ appointment.name }}</td>
               <td>{{ appointment.phone_number }}</td>
               <td>{{ appointment.time }}</td>
               <td>{{ appointment.created }}</td>
               <td>
-                {% comment %}
                 <a class="btn btn-default btn-xs" href="{% url 'edit_appointment' appointment.pk %}">Edit</a>
-                <a class="btn btn-xs btn-danger" href="{% url 'delete_appointment' %}">Delete</a>
-                {% endcomment %}
+                <a class="btn btn-xs btn-danger" href="{% url 'delete_appointment' appointment.pk %}">Delete</a>
               </td>
             </tr>
           {% endfor %}
