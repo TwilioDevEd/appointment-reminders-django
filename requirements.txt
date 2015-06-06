@@ -1,5 +1,6 @@
 # Requirements for the appointments Django project
 
+arrow==0.5.4
 celery==3.1.18
 Django==1.8.2
 django-bootstrap3==5.4.0

@@ -15,11 +15,22 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'not-so-secret'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Twilio API settings
+TWILIO_NUMBER = os.environ.get('TWILIO_NUMBER')
+TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')
+
+# Celery settings
+BROKER_URL = 'redis://localhost:6379/0'
+
+# Reminder time: how early text messages are sent in advance of appointments
+REMINDER_TIME = 30 # minutes
 
 ALLOWED_HOSTS = []
 
