@@ -26,7 +26,7 @@ SECRET_KEY = 'not-so-secret'
 # Twilio API
 TWILIO_NUMBER = os.environ.get('TWILIO_NUMBER')
 
-# Celery
+# Address of Redis instance, our Celery broker
 BROKER_URL = 'redis://localhost:6379/0'
 
 # Reminder time: how early text messages are sent in advance of appointments
