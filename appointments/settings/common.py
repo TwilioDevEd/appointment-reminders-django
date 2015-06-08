@@ -23,8 +23,6 @@ SECRET_KEY = 'not-so-secret'
 
 # Twilio API settings
 TWILIO_NUMBER = os.environ.get('TWILIO_NUMBER')
-TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
-TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')
 
 # Celery settings
 BROKER_URL = 'redis://localhost:6379/0'
@@ -43,7 +41,7 @@ DJANGO_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
+    'django.contrib.staticfiles'
 )
 
 THIRD_PARTY_APPS = (

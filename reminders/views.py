@@ -1,3 +1,4 @@
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -12,13 +13,15 @@ class AppointmentListView(ListView):
 class AppointmentDetailView(DetailView):
     model = Appointment
 
-class AppointmentCreateView(CreateView):
+class AppointmentCreateView(SuccessMessageMixin, CreateView):
     model = Appointment
     fields = ['name', 'phone_number', 'time']
+    success_message = 'Appointment successfully created.'
 
-class AppointmentUpdateView(UpdateView):
+class AppointmentUpdateView(SuccessMessageMixin, UpdateView):
     model = Appointment
     fields = ['name', 'phone_number', 'time']
+    success_message = 'Appointment successfully updated.'
 
 class AppointmentDeleteView(DeleteView):
     model = Appointment

@@ -4,10 +4,13 @@ from celery import shared_task
 from django.conf import settings
 from twilio.rest import TwilioRestClient
 
+import arrow
+
 from .models import Appointment
 
-# To find these visit https://www.twilio.com/user/account
-client = TwilioRestClient(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+# Uses credentials from the TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN
+# environment variables
+client = TwilioRestClient()
 
 @shared_task
 def send_sms_reminder(appointment_id):
@@ -20,13 +23,14 @@ def send_sms_reminder(appointment_id):
         # has been deleted, so we don't need to do anything
         return
 
-    body = 'Hi {0}. You have an appointment coming up at {1}.'.format(
+    appointment_time = arrow.get(appointment.time)
+    body = 'Hi {0}. You have an appointment coming up {1}.'.format(
         appointment.name,
-        appointment.time
+        appointment_time.humanize()
     )
 
     message = client.messages.create(
         body=body,
-        to=settings.TWILIO_NUMBER,
-        from_="+15105551234",
+        to=appointment.phone_number,
+        from_=settings.TWILIO_NUMBER,
     )
