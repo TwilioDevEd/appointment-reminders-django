@@ -1,0 +1,117 @@
+.step(data-title='Introduction')
+  :markdown
+    ## How It Works
+
+    Ready to implement appointment reminders in your application? Here's how it works at a high level:
+
+      1. An administrator creates an appointment for a future date and time, and stores a customer's phone number in the database for that appointment
+      1. A background process checks the database on a regular interval, looking for appointments that require a reminder to be sent out
+      1. At a configured time in advance of the appointment, an SMS reminder is sent out to the customer to remind them of their appointment
+
+    ## Building Blocks
+
+    Here are the technologies we'll use to get this done:
+
+    * [Ruby on Rails](http://rubyonrails.org/) to create a database-driven web application
+    * [The Messages Resource](/docs/api/rest/sending-sms) from Twilio's REST API to send text messages
+    * [Delayed::Job](https://github.com/collectiveidea/delayed_job) to help us schedule and execute background tasks on a recurring basis
+
+    ## How To Read This Tutorial
+
+    To implement appointment reminders, we will be working through a series of [user stories](http://en.wikipedia.org/wiki/User_story) that describe how to fully implement appointment reminders in a web application. We'll walk through the code required to satisfy each story, and explore what we needed to add at each step.
+
+    Let's get started! Click the right arrow to move on to the next step of the tutorial.
+
+.step(data-title="About This Tutorial")
+  :markdown
+    ## About This Tutorial
+
+    In this tutorial, we will be working through a series of [user stories](http://en.wikipedia.org/wiki/User_story) that describe how to fully implement account verification in a web application. Our team implemented this example application in about 12 story points (roughly equivalent to 12 working hours).
+
+    Let's get started with our first user story around creating a new user account.
+
+.step(data-title='The User Story')
+  h2 Creating an Appointment
+  blockquote 
+    | As a user, I want to create an appointment with a name, guest phone numbers, and a time in the future.
+  :markdown
+    In order to build an automated appointment reminder app, we probably should start with an appointment. This story requires that we create a bit of UI and a model object to create and save a new `Appointment` in our system. At a high level, here's what we will need to add:
+
+    * A form to enter details about the appointment
+    * A route and controller function on the server to render the form 
+    * A route and controller function on the server to handle the form POST request
+    * A persistent `Appointment` model object to store information about the user 
+
+    Let's start by looking at the model, where we decide what information we want to store with the appointment.
+
+.step(data-title='Rails Generator', data-file="requirements.txt", data-language="python")
+  :markdown
+    ## The Rails Generator
+
+    Usually at this point in the tutorial we would build our model, view and controller from scratch (see [account verification](/docs/howto/walkthrough/account-verficiation/ruby/rails#2) as an example). But since the appointment model is so straight-forward, and we really just want the basic CRUD scaffolding, we're going to use the Rails generator for once.
+
+    *A Note about Tools*
+
+    In this app we're using Rails 4, but it will be very similar for 3 and below. We will also be using the [twilio-ruby](https://github.com/twilio/twilio-ruby) helper library. Lastly we use bootstrap to simplify design, and in this case there is a gem that will generate bootstrap-themed views called [twitter-bootstrap-rails](https://github.com/seyhunak/twitter-bootstrap-rails). Please check out these tools when you have a chance, now let's move on to generating our scaffolding.
+
+    *Generate a Model, View and Controller*
+
+    [Rails generate](http://guides.rubyonrails.org/command_line.html#rails-generate) is a command-line tool that generates rails components like models, views, tests and more. For our purposes we are going to use the big kahuna generator, `scaffold` to generate everything at once.
+
+    Here's how we did it. From inside our rails app, we ran:
+    ```
+    $ bin/rails generate scaffold Appointment name:string phone_number:string time:datetime
+
+    ```
+
+    This tells our generator to create the 'scaffolding' for a resource called Appointment, which has the properties name, phone_number and time. Now let's go to the model that was generated and add some stuff to it.
+
+.step(data-title='Appointment Model', data-file='requirements.txt', data-highlight='1-4')
+  :markdown
+    ## Appointment Model
+
+    The appointment model is pretty simple out of the box, but since humans will be interacting with it let's make sure we add some data validation.
+
+    *Data Validation*
+
+    Validations are important since we want to make sure only accurate data is being saved into our database. In this case, we only want to validate that all of our required fields are present. We can do this by creating a `validates` statement with `presence: true`.
+
+    It is likely that our Appointment Model would be created by an admin person at the site of the appointment. Well it would be great if we could give our admin user some feedback when they create the appointment. Luckily in Rails if we add validations to our models we get error reporting for free with the session's `flash` object.
+
+    One note: in order to run this demo you would need to run `rake db:migrate` which would run the migrations in our db/migrate folder. For this tutorial we're gonna focus on the core concepts but if you want to learn more about migrations you can read the [Rails guide](http://edgeguides.rubyonrails.org/active_record_migrations.html) on the subject.
+
+    Now we're ready to move up to the controller level of the application, starting with the HTTP request routes we'll need.
+
+.step(data-title='Adding Routes', data-file='requirements.txt')
+  :markdown
+    ## Routes
+
+    In a Rails application, [Resource Routing](http://guides.rubyonrails.org/routing.html#resource-routing-the-rails-default) automatically maps a resource's CRUD capabilities to its controller. Since our `Appointment` is an ActiveRecord resource, we can simply tell Rails that we want to use these routes, which will save us some lines of code.
+
+    This means that in this one line of code we automatically have an `appointment/new` route which will automatically render our `appointment/new.html.erb` file. Let's take a look at this form up close.
+
+.step(data-title='New Appointment Form', data-file='requirements.txt', data-language='htmlembedded')
+  :markdown
+    ## New Appointment Form
+
+    When we create a new appointment, we need a guest name, a phone number and a time. By using the rails `form_for` tag we can bind the form to the model object. This will generate the necessary html markup that will create a new Appointment on submit.
+
+    Let's point out one specific helper tag that Rails gives us for model-bound forms.
+
+.step(data-title='New Appointment Form', data-file='requirements.txt', data-language='htmlembedded', data-highlight="32-45")
+  :markdown
+    ## Date and Time
+
+    One potential time-suck is figuring out how to handle the date and time of the appointment. In reality this is two separate user inputs, one for the day and one for the time of the appointment. We need a way to combine these two separate inputs into one paramater on the server-side. Again Rails handles this by giving us the `select_data` and `select_time` tags which the server automatically gathers into one paramater that maps to the `appointment.time` property.
+
+    Let's jump back over to the controller to see what happens when we create this appointment.
+
+.step(data-title='Handling the Form POST', data-file='requirements.txt', data-highlight='28-43')
+  :markdown
+    ## Handling the Form POST
+
+    One of the other handy controllers created by our `Appointment` resource route was `appointment/create` which handles the POST from our form.
+
+    In our controller we take the input from our form and create a new `Appointment` model. If the appointment is saved to the database successfully, we redirect to the appointment details view which will show the creator the new appointment and allow them to edit or delete it.
+
+    Next we're going to take a look at the generated controllers for edit and delete.

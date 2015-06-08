@@ -1,0 +1,73 @@
+<!DOCTYPE html><html><head><title>Appointment Reminders</title><style>body, html {
+  height:100%;
+  width:100%;
+  padding:0;
+  margin:0;
+  overflow:hidden;
+  background-color:#ddd;
+}
+.wrapper {
+  height:100%;
+  width:100%;
+}</style><link rel="shortcut icon" href="//twilio.com/bundles/marketing/img/favicons/favicon.ico"><link rel="apple-touch-icon" href="//twilio.com/bundles/marketing/img/favicons/favicon_57.png"><link rel="apple-touch-icon" sizes="72x72" href="//twilio.com/bundles/marketing/img/favicons/favicon_72.png"><link rel="apple-touch-icon" sizes="114x114" href="//twilio.com/bundles/marketing/img/favicons/favicon_114.png"><link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css"><link rel="stylesheet" href="viewsaurus.css"></head><body><div class="wrapper"><div id="viewsaurus" data-title="Appointment Reminders"><div class="saurus-panes"><div class="saurus-prose"><div class="saurus-prose-header"><div class="title-outer"><span class="step-title">Appointment Reminders</span></div></div><div class="saurus-nav-buttons"><div class="saurus-nav-button nav-overview"><div class="saurus-nav-button-inner"><i class="fa fa-fw fa-list"></i></div><div class="nav-divider"></div></div><div class="saurus-nav-button nav-previous"><div class="saurus-nav-button-inner"><a href=""> <i class="fa fa-fw fa-play fa-rotate-180"></i></a></div><div class="nav-divider"></div></div><div class="saurus-nav-button nav-next clickable"><div class="saurus-nav-button-inner"><a href="#1"> <i class="fa fa-fw fa-play"></i></a></div></div><div class="saurus-next-title"><span class="next-title-inner"></span></div></div><div class="saurus-progress-bar"></div><div class="saurus-start"><p>Learn to implement appointment reminders in your web app with Twilio. Appointment reminders allow you to automate the process of reaching out to your customers in advance of an upcoming appointment.</p><a href="#0">Start Tutorial</a></div><div class="saurus-content"><div data-title="Create an Appointment" class="chapter"><div data-title="Introduction" class="step"><h2 id="how-it-works">How It Works</h2>
+<p>Ready to implement appointment reminders in your application? Here&#39;s how it works at a high level:</p>
+<ol>
+<li>An administrator creates an appointment for a future date and time, and stores a customer&#39;s phone number in the database for that appointment</li>
+<li>A background process checks the database on a regular interval, looking for appointments that require a reminder to be sent out</li>
+<li>At a configured time in advance of the appointment, an SMS reminder is sent out to the customer to remind them of their appointment</li>
+</ol>
+<h2 id="building-blocks">Building Blocks</h2>
+<p>Here are the technologies we&#39;ll use to get this done:</p>
+<ul>
+<li><a href="http://rubyonrails.org/">Ruby on Rails</a> to create a database-driven web application</li>
+<li><a href="/docs/api/rest/sending-sms">The Messages Resource</a> from Twilio&#39;s REST API to send text messages</li>
+<li><a href="https://github.com/collectiveidea/delayed_job">Delayed::Job</a> to help us schedule and execute background tasks on a recurring basis</li>
+</ul>
+<h2 id="how-to-read-this-tutorial">How To Read This Tutorial</h2>
+<p>To implement appointment reminders, we will be working through a series of <a href="http://en.wikipedia.org/wiki/User_story">user stories</a> that describe how to fully implement appointment reminders in a web application. We&#39;ll walk through the code required to satisfy each story, and explore what we needed to add at each step.</p>
+<p>Let&#39;s get started! Click the right arrow to move on to the next step of the tutorial.</p>
+</div><div data-title="About This Tutorial" class="step"><h2 id="about-this-tutorial">About This Tutorial</h2>
+<p>In this tutorial, we will be working through a series of <a href="http://en.wikipedia.org/wiki/User_story">user stories</a> that describe how to fully implement account verification in a web application. Our team implemented this example application in about 12 story points (roughly equivalent to 12 working hours).</p>
+<p>Let&#39;s get started with our first user story around creating a new user account.</p>
+</div><div data-title="The User Story" class="step"><h2>Creating an Appointment</h2><blockquote> 
+As a user, I want to create an appointment with a name, guest phone numbers, and a time in the future.</blockquote><p>In order to build an automated appointment reminder app, we probably should start with an appointment. This story requires that we create a bit of UI and a model object to create and save a new <code>Appointment</code> in our system. At a high level, here&#39;s what we will need to add:</p>
+<ul>
+<li>A form to enter details about the appointment</li>
+<li>A route and controller function on the server to render the form </li>
+<li>A route and controller function on the server to handle the form POST request</li>
+<li>A persistent <code>Appointment</code> model object to store information about the user </li>
+</ul>
+<p>Let&#39;s start by looking at the model, where we decide what information we want to store with the appointment.</p>
+</div><div data-title="Rails Generator" data-file="requirements.txt" data-language="python" class="step"><h2 id="the-rails-generator">The Rails Generator</h2>
+<p>Usually at this point in the tutorial we would build our model, view and controller from scratch (see <a href="/docs/howto/walkthrough/account-verficiation/ruby/rails#2">account verification</a> as an example). But since the appointment model is so straight-forward, and we really just want the basic CRUD scaffolding, we&#39;re going to use the Rails generator for once.</p>
+<p><em>A Note about Tools</em></p>
+<p>In this app we&#39;re using Rails 4, but it will be very similar for 3 and below. We will also be using the <a href="https://github.com/twilio/twilio-ruby">twilio-ruby</a> helper library. Lastly we use bootstrap to simplify design, and in this case there is a gem that will generate bootstrap-themed views called <a href="https://github.com/seyhunak/twitter-bootstrap-rails">twitter-bootstrap-rails</a>. Please check out these tools when you have a chance, now let&#39;s move on to generating our scaffolding.</p>
+<p><em>Generate a Model, View and Controller</em></p>
+<p><a href="http://guides.rubyonrails.org/command_line.html#rails-generate">Rails generate</a> is a command-line tool that generates rails components like models, views, tests and more. For our purposes we are going to use the big kahuna generator, <code>scaffold</code> to generate everything at once.</p>
+<p>Here&#39;s how we did it. From inside our rails app, we ran:</p>
+<pre><code>$ bin/rails generate scaffold Appointment name:string phone_number:string time:datetime
+</code></pre><p>This tells our generator to create the &#39;scaffolding&#39; for a resource called Appointment, which has the properties name, phone_number and time. Now let&#39;s go to the model that was generated and add some stuff to it.</p>
+</div><div data-title="Appointment Model" data-file="requirements.txt" data-highlight="1-4" class="step"><h2 id="appointment-model">Appointment Model</h2>
+<p>The appointment model is pretty simple out of the box, but since humans will be interacting with it let&#39;s make sure we add some data validation.</p>
+<p><em>Data Validation</em></p>
+<p>Validations are important since we want to make sure only accurate data is being saved into our database. In this case, we only want to validate that all of our required fields are present. We can do this by creating a <code>validates</code> statement with <code>presence: true</code>.</p>
+<p>It is likely that our Appointment Model would be created by an admin person at the site of the appointment. Well it would be great if we could give our admin user some feedback when they create the appointment. Luckily in Rails if we add validations to our models we get error reporting for free with the session&#39;s <code>flash</code> object.</p>
+<p>One note: in order to run this demo you would need to run <code>rake db:migrate</code> which would run the migrations in our db/migrate folder. For this tutorial we&#39;re gonna focus on the core concepts but if you want to learn more about migrations you can read the <a href="http://edgeguides.rubyonrails.org/active_record_migrations.html">Rails guide</a> on the subject.</p>
+<p>Now we&#39;re ready to move up to the controller level of the application, starting with the HTTP request routes we&#39;ll need.</p>
+</div><div data-title="Adding Routes" data-file="requirements.txt" class="step"><h2 id="routes">Routes</h2>
+<p>In a Rails application, <a href="http://guides.rubyonrails.org/routing.html#resource-routing-the-rails-default">Resource Routing</a> automatically maps a resource&#39;s CRUD capabilities to its controller. Since our <code>Appointment</code> is an ActiveRecord resource, we can simply tell Rails that we want to use these routes, which will save us some lines of code.</p>
+<p>This means that in this one line of code we automatically have an <code>appointment/new</code> route which will automatically render our <code>appointment/new.html.erb</code> file. Let&#39;s take a look at this form up close.</p>
+</div><div data-title="New Appointment Form" data-file="requirements.txt" data-language="htmlembedded" class="step"><h2 id="new-appointment-form">New Appointment Form</h2>
+<p>When we create a new appointment, we need a guest name, a phone number and a time. By using the rails <code>form_for</code> tag we can bind the form to the model object. This will generate the necessary html markup that will create a new Appointment on submit.</p>
+<p>Let&#39;s point out one specific helper tag that Rails gives us for model-bound forms.</p>
+</div><div data-title="New Appointment Form" data-file="requirements.txt" data-language="htmlembedded" data-highlight="32-45" class="step"><h2 id="date-and-time">Date and Time</h2>
+<p>One potential time-suck is figuring out how to handle the date and time of the appointment. In reality this is two separate user inputs, one for the day and one for the time of the appointment. We need a way to combine these two separate inputs into one paramater on the server-side. Again Rails handles this by giving us the <code>select_data</code> and <code>select_time</code> tags which the server automatically gathers into one paramater that maps to the <code>appointment.time</code> property.</p>
+<p>Let&#39;s jump back over to the controller to see what happens when we create this appointment.</p>
+</div><div data-title="Handling the Form POST" data-file="requirements.txt" data-highlight="28-43" class="step"><h2 id="handling-the-form-post">Handling the Form POST</h2>
+<p>One of the other handy controllers created by our <code>Appointment</code> resource route was <code>appointment/create</code> which handles the POST from our form.</p>
+<p>In our controller we take the input from our form and create a new <code>Appointment</code> model. If the appointment is saved to the database successfully, we redirect to the appointment details view which will show the creator the new appointment and allow them to edit or delete it.</p>
+<p>Next we&#39;re going to take a look at the generated controllers for edit and delete.</p>
+</div></div><div data-title="Interacting with Appointments" class="chapter"></div><div data-title="Send a Reminder" class="chapter"></div>
+<div class="saurus-files" style="display:none;"><textarea class="saurus-file" data-file="requirements.txt" data-mode="text">IyBSZXF1aXJlbWVudHMgZm9yIHRoZSBhcHBvaW50bWVudHMgRGphbmdvIHByb2plY3QKCmFycm93PT0wLjUuNApjZWxlcnlbcmVkaXNdPT0zLjEuMTgKRGphbmdvPT0xLjguMgpkamFuZ28tYm9vdHN0cmFwMz09NS40LjAKZGphbmdvLWZvcm1zLWJvb3RzdHJhcD09My4wLjEKZ3VuaWNvcm49PTE5LjMuMApwc3ljb3BnMj09Mi42Cg==</textarea>
+</div>
+</div><div class="saurus-overview"><ul></ul></div></div><div class="saurus-code"><div class="file-path"><span class="crumb-container"></span><i class="fa fa-fw fa-folder"></i></div><div class="saurus-editor"></div></div><div class="saurus-explorer"><div class="saurus-file-list"></div></div></div></div></div><script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script><script src="ace/ace.js"></script><script src="ace/theme-monokai.js"></script><script src="viewsaurus.js"></script></body></html>

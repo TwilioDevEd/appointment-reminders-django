@@ -1,0 +1,887 @@
+/**
+ * Featherlight – ultra slim jQuery lightbox
+ * Version 1.2.3 - http://noelboss.github.io/featherlight/
+ *
+ * Copyright 2015, Noël Raoul Bossart (http://www.noelboss.com)
+ * MIT Licensed.
+**/
+@media all {
+  .featherlight {
+    display: none;
+    /* dimensions: spanning the background from edge to edge */
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 2147483647;
+    /* z-index needs to be >= elements on the site. */
+    /* position: centering content */
+    text-align: center;
+    /* insures that the ::before pseudo element doesn't force wrap with fixed width content; */
+    white-space: nowrap;
+    /* styling */
+    cursor: pointer;
+    background: #333;
+    /* IE8 "hack" for nested featherlights */
+    background: rgba(0, 0, 0, 0);
+  }
+  /* support for nested featherlights. Does not work in IE8 (use JS to fix) */
+  .featherlight:last-of-type {
+    background: rgba(0, 0, 0, 0.8);
+  }
+  .featherlight:before {
+    /* position: trick to center content vertically */
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    margin-right: -0.25em;
+  }
+  .featherlight .featherlight-content {
+    /* make content container for positioned elements (close button) */
+    position: relative;
+    /* position: centering vertical and horizontal */
+    text-align: left;
+    vertical-align: middle;
+    display: inline-block;
+    /* dimensions: cut off images */
+    overflow: auto;
+    padding: 25px 25px 0;
+    border-bottom: 25px solid transparent;
+    /* dimensions: handling small or empty content */
+    min-width: 30%;
+    /* dimensions: handling large content */
+    margin-left: 5%;
+    margin-right: 5%;
+    max-height: 95%;
+    /* styling */
+    background: #fff;
+    cursor: auto;
+    /* reset white-space wrapping */
+    white-space: normal;
+  }
+  /* contains the content */
+  .featherlight .featherlight-inner {
+    /* make sure its visible */
+    display: block;
+  }
+  .featherlight .featherlight-close-icon {
+    /* position: centering vertical and horizontal */
+    position: absolute;
+    z-index: 9999;
+    top: 0;
+    right: 0;
+    /* dimensions: 25px x 25px */
+    line-height: 25px;
+    width: 25px;
+    /* styling */
+    cursor: pointer;
+    text-align: center;
+    font: Arial, sans-serif;
+    background: #fff;
+    /* Set the background in case it overlaps the content */
+    background: rgba(255, 255, 255, 0.3);
+    color: #000;
+  }
+  .featherlight .featherlight-image {
+    /* styling */
+    width: 100%;
+  }
+  .featherlight-iframe .featherlight-content {
+    /* removed the border for image croping since iframe is edge to edge */
+    border-bottom: 0;
+    padding: 0;
+  }
+  .featherlight iframe {
+    /* styling */
+    border: none;
+  }
+}
+/* handling phones and small screens */
+@media only screen and (max-width: 1024px) {
+  .featherlight .featherlight-content {
+    /* dimensions: maximize lightbox with for small screens */
+    margin-left: 10px;
+    margin-right: 10px;
+    max-height: 98%;
+    padding: 10px 10px 0;
+    border-bottom: 10px solid transparent;
+  }
+}
+#viewsaurus {
+  /*! normalize.css v1.0.0 | MIT License | git.io/normalize */
+  /* Based on Sublime Text's Monokai theme */
+  scrollbar-base-color: #808184;
+  scrollbar-highlight-color: #808184;
+  scrollbar-track-color: #231f20;
+  scrollbar-arrow-color: #808184;
+  scrollbar-shadow-color: #231f20;
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: #ffffff;
+  font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+}
+#viewsaurus article,
+#viewsaurus aside,
+#viewsaurus details,
+#viewsaurus figcaption,
+#viewsaurus figure,
+#viewsaurus footer,
+#viewsaurus header,
+#viewsaurus hgroup,
+#viewsaurus nav,
+#viewsaurus section,
+#viewsaurus summary {
+  display: block;
+}
+#viewsaurus audio,
+#viewsaurus canvas,
+#viewsaurus video {
+  display: inline-block;
+  *display: inline;
+  *zoom: 1;
+}
+#viewsaurus audio:not([controls]) {
+  display: none;
+  height: 0;
+}
+#viewsaurus [hidden] {
+  display: none;
+}
+#viewsaurus html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+#viewsaurus html,
+#viewsaurus button,
+#viewsaurus input,
+#viewsaurus select,
+#viewsaurus textarea {
+  font-family: sans-serif;
+}
+#viewsaurus body {
+  margin: 0;
+}
+#viewsaurus a:focus {
+  outline: thin dotted;
+}
+#viewsaurus a:active,
+#viewsaurus a:hover {
+  outline: 0;
+}
+#viewsaurus h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+#viewsaurus h2 {
+  font-size: 1.5em;
+  margin: 0.83em 0;
+}
+#viewsaurus h3 {
+  font-size: 1.17em;
+  margin: 1em 0;
+}
+#viewsaurus h4 {
+  font-size: 1em;
+  margin: 1.33em 0;
+}
+#viewsaurus h5 {
+  font-size: .83em;
+  margin: 1.67em 0;
+}
+#viewsaurus h6 {
+  font-size: .75em;
+  margin: 2.33em 0;
+}
+#viewsaurus abbr[title] {
+  border-bottom: 1px dotted;
+}
+#viewsaurus b,
+#viewsaurus strong {
+  font-weight: bold;
+}
+#viewsaurus blockquote {
+  margin: 1em 40px;
+}
+#viewsaurus dfn {
+  font-style: italic;
+}
+#viewsaurus mark {
+  background: #ff0;
+  color: #000000;
+}
+#viewsaurus p,
+#viewsaurus pre {
+  margin: 1em 0;
+}
+#viewsaurus code,
+#viewsaurus kbd,
+#viewsaurus pre,
+#viewsaurus samp {
+  font-family: monospace,serif;
+  _font-family: 'courier new', monospace;
+  font-size: 1em;
+}
+#viewsaurus pre {
+  white-space: pre;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+#viewsaurus q {
+  quotes: none;
+}
+#viewsaurus q:before,
+#viewsaurus q:after {
+  content: '';
+  content: none;
+}
+#viewsaurus small {
+  font-size: 75%;
+}
+#viewsaurus sub,
+#viewsaurus sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+#viewsaurus sup {
+  top: -0.5em;
+}
+#viewsaurus sub {
+  bottom: -0.25em;
+}
+#viewsaurus dl,
+#viewsaurus menu,
+#viewsaurus ol,
+#viewsaurus ul {
+  margin: 1em 0;
+}
+#viewsaurus dd {
+  margin: 0 0 0 40px;
+}
+#viewsaurus menu,
+#viewsaurus ol,
+#viewsaurus ul {
+  padding: 0 0 0 40px;
+}
+#viewsaurus nav ul,
+#viewsaurus nav ol {
+  list-style: none;
+  list-style-image: none;
+}
+#viewsaurus img {
+  border: 0;
+  -ms-interpolation-mode: bicubic;
+}
+#viewsaurus svg:not(:root) {
+  overflow: hidden;
+}
+#viewsaurus figure {
+  margin: 0;
+}
+#viewsaurus form {
+  margin: 0;
+}
+#viewsaurus fieldset {
+  border: 1px solid #c0c0c0;
+  margin: 0 2px;
+  padding: 0.35em 0.625em 0.75em;
+}
+#viewsaurus legend {
+  border: 0;
+  padding: 0;
+  white-space: normal;
+  *margin-left: -7px;
+}
+#viewsaurus button,
+#viewsaurus input,
+#viewsaurus select,
+#viewsaurus textarea {
+  font-size: 100%;
+  margin: 0;
+  vertical-align: baseline;
+  *vertical-align: middle;
+}
+#viewsaurus button,
+#viewsaurus input {
+  line-height: normal;
+}
+#viewsaurus button,
+#viewsaurus html input[type="button"],
+#viewsaurus input[type="reset"],
+#viewsaurus input[type="submit"] {
+  -webkit-appearance: button;
+  cursor: pointer;
+  *overflow: visible;
+}
+#viewsaurus button[disabled],
+#viewsaurus input[disabled] {
+  cursor: default;
+}
+#viewsaurus input[type="checkbox"],
+#viewsaurus input[type="radio"] {
+  box-sizing: border-box;
+  padding: 0;
+  *height: 13px;
+  *width: 13px;
+}
+#viewsaurus input[type="search"] {
+  -webkit-appearance: textfield;
+  -moz-box-sizing: content-box;
+  -webkit-box-sizing: content-box;
+  box-sizing: content-box;
+}
+#viewsaurus input[type="search"]::-webkit-search-cancel-button,
+#viewsaurus input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+#viewsaurus button::-moz-focus-inner,
+#viewsaurus input::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+#viewsaurus textarea {
+  overflow: auto;
+  vertical-align: top;
+}
+#viewsaurus table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+#viewsaurus .cm-s-monokai.CodeMirror {
+  background: #272822;
+  color: #f8f8f2;
+}
+#viewsaurus .cm-s-monokai div.CodeMirror-selected {
+  background: #49483E !important;
+}
+#viewsaurus .cm-s-monokai.CodeMirror ::selection {
+  background: rgba(73, 72, 62, 0.99);
+}
+#viewsaurus .cm-s-monokai.CodeMirror ::-moz-selection {
+  background: rgba(73, 72, 62, 0.99);
+}
+#viewsaurus .cm-s-monokai .CodeMirror-gutters {
+  background: #272822;
+  border-right: 0px;
+}
+#viewsaurus .cm-s-monokai .CodeMirror-guttermarker {
+  color: white;
+}
+#viewsaurus .cm-s-monokai .CodeMirror-guttermarker-subtle {
+  color: #d0d0d0;
+}
+#viewsaurus .cm-s-monokai .CodeMirror-linenumber {
+  color: #d0d0d0;
+}
+#viewsaurus .cm-s-monokai .CodeMirror-cursor {
+  border-left: 1px solid #f8f8f0 !important;
+}
+#viewsaurus .cm-s-monokai span.cm-comment {
+  color: #75715e;
+}
+#viewsaurus .cm-s-monokai span.cm-atom {
+  color: #ae81ff;
+}
+#viewsaurus .cm-s-monokai span.cm-number {
+  color: #ae81ff;
+}
+#viewsaurus .cm-s-monokai span.cm-property,
+#viewsaurus .cm-s-monokai span.cm-attribute {
+  color: #a6e22e;
+}
+#viewsaurus .cm-s-monokai span.cm-keyword {
+  color: #f92672;
+}
+#viewsaurus .cm-s-monokai span.cm-string {
+  color: #e6db74;
+}
+#viewsaurus .cm-s-monokai span.cm-variable {
+  color: #a6e22e;
+}
+#viewsaurus .cm-s-monokai span.cm-variable-2 {
+  color: #9effff;
+}
+#viewsaurus .cm-s-monokai span.cm-def {
+  color: #fd971f;
+}
+#viewsaurus .cm-s-monokai span.cm-bracket {
+  color: #f8f8f2;
+}
+#viewsaurus .cm-s-monokai span.cm-tag {
+  color: #f92672;
+}
+#viewsaurus .cm-s-monokai span.cm-link {
+  color: #ae81ff;
+}
+#viewsaurus .cm-s-monokai span.cm-error {
+  background: #f92672;
+  color: #f8f8f0;
+}
+#viewsaurus .cm-s-monokai .CodeMirror-activeline-background {
+  background: #373831 !important;
+}
+#viewsaurus .cm-s-monokai .CodeMirror-matchingbracket {
+  text-decoration: underline;
+  color: white !important;
+}
+#viewsaurus ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+#viewsaurus ::-webkit-scrollbar-track,
+#viewsaurus ::-webkit-scrollbar-corner,
+#viewsaurus ::-webkit-scrollbar-resizer {
+  background-color: #231f20;
+}
+#viewsaurus ::-webkit-scrollbar-thumb {
+  background-color: #808184;
+}
+#viewsaurus .highlighted div:not(.active) span {
+  color: #2c2c2a !important;
+  color: rgba(100, 100, 100, 0.5) !important;
+  text-shadow: 0px 0px 3px #2c2c2a !important;
+}
+#viewsaurus .saurus-panes {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+#viewsaurus .hidden {
+  display: none;
+}
+#viewsaurus .saurus-prose {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 30%;
+  color: #231f20;
+  box-sizing: border-box;
+  border-right: 1px solid #808184;
+  scrollbar-base-color: #daddd6;
+  scrollbar-highlight-color: #daddd6;
+  scrollbar-track-color: #ffffff;
+  scrollbar-arrow-color: #daddd6;
+  scrollbar-shadow-color: #ffffff;
+}
+#viewsaurus .saurus-prose ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+#viewsaurus .saurus-prose ::-webkit-scrollbar-track,
+#viewsaurus .saurus-prose ::-webkit-scrollbar-corner,
+#viewsaurus .saurus-prose ::-webkit-scrollbar-resizer {
+  background-color: #daddd6;
+}
+#viewsaurus .saurus-prose ::-webkit-scrollbar-thumb {
+  background-color: #a8af9e;
+}
+#viewsaurus .saurus-prose a,
+#viewsaurus .saurus-prose a:visited {
+  color: #e12127;
+  outline: 0;
+}
+#viewsaurus .saurus-prose .saurus-start {
+  position: absolute;
+  background-color: #ffffff;
+  color: #808184;
+  top: 40px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding: 0 10px;
+  overflow-y: auto;
+}
+#viewsaurus .saurus-prose .saurus-start a,
+#viewsaurus .saurus-prose .saurus-start a:visited {
+  text-decoration: none;
+  text-align: center;
+  line-height: 44px;
+  background-color: #56c4c3;
+  height: 44px;
+  width: 100%;
+  border: 0;
+  outline: 0;
+  text-transform: uppercase;
+  font-weight: bold;
+  color: #ffffff;
+  display: block;
+  margin: 20px auto;
+}
+#viewsaurus .saurus-prose .saurus-start a:hover {
+  background-color: #8fd8d7;
+}
+#viewsaurus .saurus-prose .saurus-overview {
+  position: absolute;
+  top: 80px;
+  bottom: 0;
+  width: 100%;
+  left: -100%;
+  right: 0;
+  background-color: #231f20;
+  color: #daddd6;
+  overflow-y: auto;
+  scrollbar-base-color: #808184;
+  scrollbar-highlight-color: #808184;
+  scrollbar-track-color: #231f20;
+  scrollbar-arrow-color: #808184;
+  scrollbar-shadow-color: #231f20;
+}
+#viewsaurus .saurus-prose .saurus-overview ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+#viewsaurus .saurus-prose .saurus-overview ::-webkit-scrollbar-track,
+#viewsaurus .saurus-prose .saurus-overview ::-webkit-scrollbar-corner,
+#viewsaurus .saurus-prose .saurus-overview ::-webkit-scrollbar-resizer {
+  background-color: #231f20;
+}
+#viewsaurus .saurus-prose .saurus-overview ::-webkit-scrollbar-thumb {
+  background-color: #808184;
+}
+#viewsaurus .saurus-prose .saurus-overview .current {
+  background-color: #3e3739;
+  border-radius: 3px;
+}
+#viewsaurus .saurus-prose .saurus-overview ul {
+  margin: 0 0 0 10px;
+  padding: 0;
+}
+#viewsaurus .saurus-prose .saurus-overview ul li {
+  list-style: none;
+  margin: 5px;
+  color: #daddd6;
+}
+#viewsaurus .saurus-prose .saurus-overview ul li span {
+  display: block;
+  width: 100%;
+}
+#viewsaurus .saurus-prose .saurus-overview ul ul li {
+  padding: 5px;
+  margin: 5px;
+  font-size: 14px;
+  list-style: none;
+}
+#viewsaurus .saurus-prose .saurus-overview ul ul li a,
+#viewsaurus .saurus-prose .saurus-overview ul ul li a:visited {
+  display: block;
+  width: 100%;
+  color: #71bbba;
+  text-decoration: none;
+}
+#viewsaurus .saurus-prose .saurus-overview ul ul li a:hover {
+  text-decoration: underline;
+}
+#viewsaurus .saurus-prose .saurus-prose-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #daddd6;
+  height: 40px;
+  font-size: 14px;
+}
+#viewsaurus .saurus-prose .saurus-prose-header .title-outer {
+  padding: 0 10px;
+  display: table;
+  vertical-align: middle;
+  height: 100%;
+}
+#viewsaurus .saurus-prose .saurus-prose-header .step-title {
+  display: table-cell;
+  vertical-align: middle;
+  line-height: 1.2em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+#viewsaurus .saurus-prose .saurus-nav-buttons {
+  color: #808184;
+  background-color: #d0f0ed;
+  height: 40px;
+  width: 100%;
+  position: absolute;
+  top: 40px;
+}
+#viewsaurus .saurus-prose .saurus-nav-buttons .saurus-next-title {
+  position: absolute;
+  left: 60%;
+  height: 100%;
+  width: 40%;
+  color: #808184;
+  font-size: 12px;
+  display: table;
+  vertical-align: middle;
+}
+#viewsaurus .saurus-prose .saurus-nav-buttons .saurus-next-title .next-title-inner {
+  display: table-cell;
+  vertical-align: middle;
+  line-height: 1.2em;
+  padding-right: 5px;
+}
+#viewsaurus .saurus-prose .saurus-nav-buttons a,
+#viewsaurus .saurus-prose .saurus-nav-buttons a:visited {
+  z-index: 1;
+  outline: 0;
+  text-decoration: none;
+  width: 100%;
+}
+#viewsaurus .saurus-prose .saurus-nav-buttons .saurus-nav-button {
+  width: 20%;
+  height: 100%;
+  text-align: center;
+  color: #231f20;
+  font-size: 22px;
+  display: table;
+  vertical-align: middle;
+}
+#viewsaurus .saurus-prose .saurus-nav-buttons .saurus-nav-button .saurus-nav-button-inner {
+  display: table-cell;
+  vertical-align: middle;
+}
+#viewsaurus .saurus-prose .saurus-nav-buttons .saurus-nav-button .nav-divider {
+  position: absolute;
+  top: 5px;
+  right: 0;
+  height: 30px;
+  width: 1px;
+  background-color: #daddd6;
+}
+#viewsaurus .saurus-prose .saurus-nav-buttons .nav-overview {
+  position: absolute;
+  left: 0;
+  cursor: pointer;
+}
+#viewsaurus .saurus-prose .saurus-nav-buttons .nav-overview:hover {
+  color: #4c4345;
+}
+#viewsaurus .saurus-prose .saurus-nav-buttons .nav-previous a,
+#viewsaurus .saurus-prose .saurus-nav-buttons .nav-next a,
+#viewsaurus .saurus-prose .saurus-nav-buttons .nav-previous a:visited,
+#viewsaurus .saurus-prose .saurus-nav-buttons .nav-next a:visited {
+  color: #daddd6;
+  cursor: default;
+  pointer-events: none;
+}
+#viewsaurus .saurus-prose .saurus-nav-buttons .nav-previous .nav-inner,
+#viewsaurus .saurus-prose .saurus-nav-buttons .nav-next .nav-inner {
+  height: 100%;
+  width: 100%;
+}
+#viewsaurus .saurus-prose .saurus-nav-buttons .clickable a,
+#viewsaurus .saurus-prose .saurus-nav-buttons .clickable a:visited {
+  color: #231f20;
+  cursor: pointer;
+  pointer-events: all;
+}
+#viewsaurus .saurus-prose .saurus-nav-buttons .clickable a:hover {
+  color: #4c4345;
+}
+#viewsaurus .saurus-prose .saurus-nav-buttons .nav-previous {
+  position: absolute;
+  top: 0;
+  left: 20%;
+}
+#viewsaurus .saurus-prose .saurus-nav-buttons .nav-next {
+  position: absolute;
+  top: 0;
+  left: 40%;
+}
+#viewsaurus .saurus-prose .saurus-progress-bar {
+  position: absolute;
+  height: 3px;
+  top: 80px;
+  left: 0;
+  width: 0;
+  z-index: 10;
+  opacity: 0.8;
+  background-color: #71bbba;
+}
+#viewsaurus .saurus-prose .saurus-content {
+  position: absolute;
+  top: 80px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+#viewsaurus .saurus-prose .saurus-content pre code *::before,
+#viewsaurus .saurus-prose .saurus-content pre code *::after {
+  display: none !important;
+}
+#viewsaurus .saurus-prose .saurus-content .step {
+  display: none;
+  line-height: 1.4em;
+}
+#viewsaurus .saurus-prose .saurus-content .step h1,
+#viewsaurus .saurus-prose .saurus-content .step h2,
+#viewsaurus .saurus-prose .saurus-content .step h3,
+#viewsaurus .saurus-prose .saurus-content .step h4,
+#viewsaurus .saurus-prose .saurus-content .step h5,
+#viewsaurus .saurus-prose .saurus-content .step h6 {
+  line-height: 1.2em;
+  padding: 0;
+  margin: 0 0 5px 0;
+}
+#viewsaurus .saurus-prose .saurus-content .step p {
+  font-size: 14px;
+}
+#viewsaurus .saurus-prose .saurus-content .step :not(pre) code {
+  padding: 2px 4px;
+  font-size: 90%;
+  color: #c7254e;
+  background-color: #f9f2f4;
+  border-radius: 4px;
+}
+#viewsaurus .saurus-prose .saurus-content .step ul {
+  padding-left: 20px;
+}
+#viewsaurus .saurus-prose .saurus-content .step ul li {
+  font-size: 90%;
+}
+#viewsaurus .saurus-prose .saurus-content .step pre {
+  padding: 5px;
+  font-size: 12px;
+  line-height: 1.2em;
+  background-color: #272822;
+  color: #ffffff;
+  overflow-x: hidden;
+}
+#viewsaurus .saurus-prose .saurus-content .step pre code {
+  overflow-wrap: normal;
+  white-space: pre;
+  width: 100%;
+  line-height: 1.6;
+}
+#viewsaurus .saurus-prose .saurus-content .step img {
+  max-width: 100%;
+  cursor: pointer;
+}
+#viewsaurus .saurus-prose .saurus-content .chapter:first-child .step:first-child {
+  display: block;
+}
+#viewsaurus .saurus-code {
+  position: absolute;
+  top: 0;
+  left: 30%;
+  bottom: 0;
+  right: 0;
+  box-sizing: border-box;
+  border-right: 1px solid #808184;
+  background-color: #231f20;
+  scrollbar-base-color: #808184;
+  scrollbar-highlight-color: #808184;
+  scrollbar-track-color: #231f20;
+  scrollbar-arrow-color: #808184;
+  scrollbar-shadow-color: #231f20;
+}
+#viewsaurus .saurus-code ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+#viewsaurus .saurus-code ::-webkit-scrollbar-track,
+#viewsaurus .saurus-code ::-webkit-scrollbar-corner,
+#viewsaurus .saurus-code ::-webkit-scrollbar-resizer {
+  background-color: #231f20;
+}
+#viewsaurus .saurus-code ::-webkit-scrollbar-thumb {
+  background-color: #808184;
+}
+#viewsaurus .saurus-code .file-path {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 25px;
+  background-color: #231f20;
+  color: #808184;
+  font-size: 14px;
+}
+#viewsaurus .saurus-code .file-path i {
+  margin: 5px 10px;
+  float: right;
+  cursor: pointer;
+  color: #808184;
+  display: block;
+}
+#viewsaurus .saurus-code .file-path i:hover {
+  color: #9a9b9d;
+}
+#viewsaurus .saurus-code .file-path .crumb-container {
+  display: block;
+  float: left;
+  margin: 4px 40px 4px 10px;
+}
+#viewsaurus .saurus-code .file-path .crumb-container span:last-child {
+  color: #d1c626;
+}
+#viewsaurus .saurus-code .saurus-editor {
+  position: absolute;
+  top: 25px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-top: 1px solid #808184;
+}
+#viewsaurus .saurus-code .ace_scroller {
+  bottom: 8px;
+  right: 8px;
+}
+#viewsaurus .saurus-code .ace_inactive,
+#viewsaurus .saurus-code .ace_inactive span {
+  color: #2c2c2a;
+  color: rgba(100, 100, 100, 0.2) !important;
+  text-shadow: 0 0 3px #c1c6ba;
+}
+#viewsaurus .saurus-explorer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -270px;
+  width: 270px;
+  background-color: #231f20;
+  color: #daddd6;
+  overflow-y: auto;
+  overflow-x: auto;
+  font-size: 14px !important;
+}
+#viewsaurus .saurus-explorer .saurus-file-list .current {
+  color: #d1c626;
+}
+#viewsaurus .saurus-explorer .saurus-file-list .current:hover {
+  color: #d1c626;
+}
+#viewsaurus .saurus-explorer .saurus-file-list ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+#viewsaurus .saurus-explorer .saurus-file-list ul li {
+  margin: 10px;
+  padding: 0;
+  color: #daddd6;
+  font-size: 14px !important;
+}
+#viewsaurus .saurus-explorer .saurus-file-list ul li ul li {
+  margin-left: 20px;
+  color: #daddd6;
+  font-size: 14px !important;
+}
+#viewsaurus .saurus-explorer .saurus-file-list ul li[data-file] {
+  cursor: pointer;
+}
+#viewsaurus .saurus-explorer .saurus-file-list ul li[data-file]:hover:not(.current) {
+  color: #ffffff;
+}
