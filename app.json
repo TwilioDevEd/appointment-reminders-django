@@ -34,5 +34,5 @@
   "scripts": {
     "postdeploy": "python manage.py migrate"
   },
-  "success_url": "/",
+  "success_url": "/"
 }
