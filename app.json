@@ -27,8 +27,7 @@
     },
     "DJANGO_SECRET_KEY": {
       "description": "A unique, unpredictable key for your Django app",
-      "value": "enter_your_secret_key_here",
-      "required": true
+      "generator": "secret"
     }
   },
   "scripts": {
