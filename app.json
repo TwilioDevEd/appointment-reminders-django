@@ -25,6 +25,11 @@
       "value": "+15005550006",
       "required": true
     },
+    "DJANGO_SETTINGS_MODULE": {
+      "description": "Instructs our app to use the production settings module",
+      "value": "appointments.settings.production",
+      "required": true
+    },
     "DJANGO_SECRET_KEY": {
       "description": "A unique, unpredictable key for your Django app",
       "generator": "secret"
