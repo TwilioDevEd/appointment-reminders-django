@@ -4,6 +4,14 @@ Use Twilio to create automatic appointment reminders for your business's clients
 
 ## Quickstart
 
+### Heroku
+
+This project is preconfigured to run on Heroku. Deploy it now:
+
+[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/atbaker/appointment-reminders-django)
+
+### Local development
+
 This project is built using the [Django](https://www.djangoproject.com/) web framework. It runs on Python 2.7+ and Python 3.4+.
 
 To run the app locally, first clone this repository and `cd` into its directory. Then:
