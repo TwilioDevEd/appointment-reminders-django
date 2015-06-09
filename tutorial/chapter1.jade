@@ -10,7 +10,7 @@
 
     ## Building Blocks
 
-    Here are the technologies we'll use to get this done:
+    Here are the technologies we'll use:
 
     * [Django](https://www.djangoproject.com/) to create a database-driven web application
     * [The Messages Resource](/docs/api/rest/sending-sms) from Twilio's REST API to send text messages
@@ -18,25 +18,23 @@
 
     ## How To Read This Tutorial
 
-    To implement appointment reminders, we will be working through a series of [user stories](http://en.wikipedia.org/wiki/User_story) that describe how to fully implement appointment reminders in a web application. We'll walk through the code required to satisfy each story, and explore what we needed to add at each step.
+    To implement appointment reminders, we will be working through a series of [user stories](http://en.wikipedia.org/wiki/User_story) that describe how to fully implement appointment reminders in a web application.
+
+    We'll walk through the code required to satisfy each story, and explore what we needed to add at each step.
 
     Let's get started! Click the right arrow to move on to the next step of the tutorial.
 
-.step(data-title="About This Tutorial", data-file="requirements.txt")
+.step(data-title="Meet our stack", data-file="requirements.txt")
   :markdown
-    ## About This Tutorial
-
-    In this tutorial, we will be working through a series of [user stories](http://en.wikipedia.org/wiki/User_story) that describe how to fully implement account verification in a web application. Our team implemented this example application in about 12 story points (roughly equivalent to 12 working hours).
-
-    **A note about tools**
+    ## Meet our stack
 
     We're building this app for Django 1.8 on Python 3.4, but all our code works in Python 2.7 too. We're big fans of [Two Scoops of Django](http://twoscoopspress.org/products/two-scoops-of-django-1-8) and we will use many best practices outlined there.
 
     In addition to Celery, we will use a few other Python libraries to make our task easier:
 
     - The [twilio-python](https://github.com/twilio/twilio-python) Python helper library
-    - [django-bootstrap3](https://github.com/dyve/django-bootstrap3) and [django-forms-bootstrap](https://github.com/pinax/django-forms-bootstrap) to make our form HTML simpler and prettier
-    - The fantastic [arrow](http://crsmithdev.com/arrow/) library to make our datetime math easier
+    - [django-bootstrap3](https://github.com/dyve/django-bootstrap3) and [django-forms-bootstrap](https://github.com/pinax/django-forms-bootstrap) to make our form templates simpler and prettier
+    - The fantastic [arrow](http://crsmithdev.com/arrow/) library to make our datetime math foolproof
 
     We will also use [PostgreSQL](http://www.postgresql.org/) for our database and [Redis](http://redis.io/) as our [Celery message broker](http://docs.celeryproject.org/en/latest/getting-started/brokers/index.html).
 
@@ -45,15 +43,17 @@
 .step(data-title='The User Story')
   h2 Creating an Appointment
   blockquote 
-    | As a user, I want to create an appointment with a name, guest phone numbers, and a time in the future.
+    | As a user, I want to create an appointment with a name, guest phone number, and a time in the future.
   :markdown
-    In order to build an automated appointment reminder app, we probably should start with an appointment. This story requires that we create a bit of UI and a model object to create and save a new `Appointment` in our system. At a high level, here's what we will need to add:
+    To build an automated appointment reminder app, we probably should start with an appointment. This story requires that we create a model object and a bit of the user interface to create and save a new `Appointment` in our system.
 
-    * An HTML form to enter details about the appointment
-    * A view to render our form and accept POST data from it
+    At a high level, here's what we will need to add:
+
     * An `Appointment` model to store information we need to send the reminder
+    * A view to render our form and accept POST data from it
+    * An HTML form to enter details about the appointment
 
-    Let's start by looking at the model, where we decide what information we want to store with the appointment.
+    Let's start by looking at the model.
 
 .step(data-title='The Appointment model', data-file="reminders/models.py", data-highlight='11-21', data-language="python")
   :markdown
@@ -74,13 +74,13 @@
 
     To keep our project compatible with Python 2, we use the `python_2_unicode_compatible` decorator on our model.
 
-    This decorator tells Django to use our model's `__str__` method to provide a `__unicode__` method when running under Python 2.
+    This decorator tells Django to use our model's `__str__` method to make a `__unicode__` method when needed for Python 2.
 
     You can read more about it in the [Porting to Python 3](https://docs.djangoproject.com/en/1.8/topics/python3/#str-and-unicode-methods) section of the Django documentation.
 
 .step(data-title='Migrations and the Django Admin', data-file='reminders/admin.py', data-language="python")
   :markdown
-    ## Migrations and the Django Admin
+    ## Migrations and the Django admin
 
     To create a table for our new model in our Postgres database, we need to make a [migration](https://docs.djangoproject.com/en/1.8/topics/migrations/).
 
@@ -96,9 +96,11 @@
     $ python manage.py migrate
     ```
 
+    **The Django admin**
+
     Django's built-in admin is a convenient tool for playing with newly declared models.
 
-    To wire up our `Appointment` model with the Django admin, just add this simple `admin.py` alongside your `models.py`.
+    To wire up our `Appointment` model to use the Django admin, just add this simple `admin.py` module alongside your `models.py`.
 
     Before you can log in to the Django admin, you need to create a superuser for yourself. You can do that with:
 
@@ -116,7 +118,7 @@
 
     Django lets developers write views as [functions](https://docs.djangoproject.com/en/1.8/topics/http/views/) or [classes](https://docs.djangoproject.com/en/1.8/topics/class-based-views/).
 
-    Class-based views are great when your views need to support simple, [CRUD-like](http://en.wikipedia.org/wiki/Create,_read,_update_and_delete) features - perfect for our appointments app.
+    Class-based views are great when your views need to support simple, [CRUD-like](http://en.wikipedia.org/wiki/Create,_read,_update_and_delete) features - perfect for our appointments project.
 
     To make a view for creating new `Appointment` objects, we'll use Django's generic [CreateView](https://docs.djangoproject.com/en/1.8/ref/class-based-views/generic-editing/#django.views.generic.edit.CreateView) class.
 
@@ -126,7 +128,7 @@
 
     Our view is ready to go with just those first three lines of code, but we'll make it a little better by adding the [SuccessMessageMixin](https://docs.djangoproject.com/en/1.8/ref/contrib/messages/#adding-messages-in-class-based-views).
 
-    This mixin tells our view to pass the `success_message` property of our class to the [Django messages framework](https://docs.djangoproject.com/en/1.8/ref/contrib/messages/) after a successful creation. We will display those messages to the user in our template.
+    This mixin tells our view to pass the `success_message` property of our class to the [Django messages framework](https://docs.djangoproject.com/en/1.8/ref/contrib/messages/) after a successful creation. We will display those messages to the user in our templates.
 
 .step(data-title='Wiring up the URLs', data-file='reminders/urls.py', data-highlight='11-12', data-language="python")
   :markdown
@@ -144,50 +146,48 @@
 
     Then we can add a URL for creating new appointments to our `reminders/urls.py` module.
 
-    We'll first create a new URL to handle requests to `/new`. We can connect that URL with our view by importing `AppointmentCreateView` from our `views` module and passing it as the second parameter of our URL declaration with `AppointmentCreateView.as_view()`.
+    To satisfy the appointment creation user story, we'll create a new URL at `/new`.
+
+    We can connect that URL with our view by importing `AppointmentCreateView` from our `views` module and passing it as the second parameter of our URL declaration with `AppointmentCreateView.as_view()`.
 
 .step(data-title='New appointment form', data-file='templates/reminders/appointment_form.html', data-language='html')
   :markdown
     ## New appointment form
 
-    The last piece we need to let our users create new appointments is the HTML form.
+    The last big piece we need to let our users create new appointments is the HTML form.
 
     Our form template inherits from our base template, which you can check out at `templates/base.html`.
 
-    We're using [Bootstrap](http://getbootstrap.com/) for the front end of our app, and we use the [django-forms-bootstrap](https://github.com/pinax/django-forms-bootstrap) library to help us render our form in our template with the `|as_bootstrap_horizontal` template filter.
+    We're using [Bootstrap](http://getbootstrap.com/) for the front end of our app, and we use the [django-forms-bootstrap](https://github.com/pinax/django-forms-bootstrap) library to help us render our form with the `|as_bootstrap_horizontal` template filter.
 
+    By naming this file `appointment_form.html`, our `AppointmentCreateView` will automatically use this template when rendering its response. If you want to name your template something else, you can specify its name by adding a `template_name` property on our view class.
 
+    We'll use this same template with our update view in the next chapter.
 
-.step(data-title='Adding Routes', data-file='requirements.txt')
+.step(data-title='Appointment form datepicker', data-file='templates/reminders/appointment_form.html', data-highlight='40-57', data-language='html')
   :markdown
-    ## Routes
+    ## Appointment form datepicker
 
-    In a Rails application, [Resource Routing](http://guides.rubyonrails.org/routing.html#resource-routing-the-rails-default) automatically maps a resource's CRUD capabilities to its controller. Since our `Appointment` is an ActiveRecord resource, we can simply tell Rails that we want to use these routes, which will save us some lines of code.
+    To make it easier for our users to enter the date and time of an appointment, we'll use a JavaScript datepicker widget.
 
-    This means that in this one line of code we automatically have an `appointment/new` route which will automatically render our `appointment/new.html.erb` file. Let's take a look at this form up close.
+    In this case, [bootstrap-datetimepicker](https://eonasdan.github.io/bootstrap-datetimepicker/) is a good fit. We include the necessary CSS and JS files from content delivery networks and then add a little custom JavaScript to initialize the widget on the form input for our time field.
 
-.step(data-title='New Appointment Form', data-file='requirements.txt', data-language='htmlembedded')
+    **A note on time zones**
+
+    Our appointment reminders project assumes that users are creating appointments in the same time zone as the customers who will receive the reminders.
+
+    You can specify that time zone in `settings/common.py` with the `TIME_ZONE` variable. [You can read more about Django's time zone support in the official docs.](https://docs.djangoproject.com/en/1.8/topics/i18n/timezones/)
+
+.step(data-title='Adding a get_absolute_url method', data-file='reminders/models.py', data-highlight='11-24', data-language='python')
   :markdown
-    ## New Appointment Form
+    ## Adding a get_absolute_url method
 
-    When we create a new appointment, we need a guest name, a phone number and a time. By using the rails `form_for` tag we can bind the form to the model object. This will generate the necessary html markup that will create a new Appointment on submit.
+    When a user clicks "Submit" on our new appointment form, their input will be received by our `AppointmentCreateView` and then validated against the fields we specified in our `Appointment` model.
 
-    Let's point out one specific helper tag that Rails gives us for model-bound forms.
+    If everything looks good, Django will save the new appointment to the database. We need to tell our `AppointmentCreateView` where to send our user next.
 
-.step(data-title='New Appointment Form', data-file='requirements.txt', data-language='htmlembedded', data-highlight="32-45")
-  :markdown
-    ## Date and Time
+    We could specify a `success_url` property on our `AppointmentCreateView`, but by default Django's [CreateView](https://docs.djangoproject.com/en/1.8/ref/class-based-views/mixins-editing/#django.views.generic.edit.ModelFormMixin.get_success_url) class will use the newly created object's `get_absolute_url` method to figure out where to go next.
 
-    One potential time-suck is figuring out how to handle the date and time of the appointment. In reality this is two separate user inputs, one for the day and one for the time of the appointment. We need a way to combine these two separate inputs into one paramater on the server-side. Again Rails handles this by giving us the `select_data` and `select_time` tags which the server automatically gathers into one paramater that maps to the `appointment.time` property.
+    So we'll define a `get_absolute_url` method on our `Appointment` model, which uses Django's [reverse](https://docs.djangoproject.com/en/1.8/ref/urlresolvers/#reverse) utility function to build a URL for this appointment's detail page. You can see that template at `templates/reminders/appointment_detail.html`.
 
-    Let's jump back over to the controller to see what happens when we create this appointment.
-
-.step(data-title='Handling the Form POST', data-file='requirements.txt', data-highlight='28-43')
-  :markdown
-    ## Handling the Form POST
-
-    One of the other handy controllers created by our `Appointment` resource route was `appointment/create` which handles the POST from our form.
-
-    In our controller we take the input from our form and create a new `Appointment` model. If the appointment is saved to the database successfully, we redirect to the appointment details view which will show the creator the new appointment and allow them to edit or delete it.
-
-    Next we're going to take a look at the generated controllers for edit and delete.
+    And now our users are all set to create new appointments. In the next section, we'll quickly implement a few other basic features: listing, updating, and deleting appointments.
