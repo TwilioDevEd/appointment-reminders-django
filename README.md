@@ -37,12 +37,15 @@ To run the app locally, first clone this repository and `cd` into its directory.
     - If Postgres is already installed locally, you can just run `createdb appointment_reminders` from a terminal
 1. Run the migrations with `python manage.py migrate`
 1. Optionally create a superuser so you can access the Django admin: `python manage.py createsuperuser`
+1. Copy the `.env_example` file to `.env`, and edit it to include your Twilio API credentials (found at https://www.twilio.com/user/account/voice)
+1. Run `source .env` to apply the environment variables (or even better, use [autoenv](https://github.com/kennethreitz/autoenv))
 1. Start the development server: `python manage.py runserver`
 
 This project uses [Celery](http://docs.celeryproject.org/en/latest/index.html) to asynchronously send SMS reminders to users. To start the Celery process:
 
 1. This project uses [Redis](http://redis.io/) as its task queue. Install and start Redis
 1. Start a new terminal session and activate your virtual environment
+1. Source the `.env` file if you're not using [autoenv](https://github.com/kennethreitz/autoenv)
 1. Start the Celery worker with the command: `celery -A appointments.settings worker -l info`
 
 You can then visit the application at [http://localhost:8000/](http://localhost:8000/).
