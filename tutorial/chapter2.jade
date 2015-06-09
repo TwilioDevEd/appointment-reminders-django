@@ -1,0 +1,47 @@
+.step(data-title='Interacting with Appointments', data-file="reminders/views.py", data-language="python")
+  h2 Interacting with Appointments
+
+  blockquote 
+    | As a user, I want to view a list of all future appointments, and be able to edit and delete those appointments.
+  :markdown
+    If you're an organization that handles a lot of appointments, you probably want to be able to view and manage them in a single interface. That's what we'll tackle in this user story. We'll create a UI to:
+
+    * Show all appointments
+    * Edit individual appointments
+    * Delete individual appoinments
+
+    Because these are basic [CRUD-like](http://en.wikipedia.org/wiki/Create,_read,_update_and_delete) operations, we'll leverage [Django's generic class-based views](https://docs.djangoproject.com/en/1.8/topics/class-based-views/generic-editing/#model-forms) to save us a lot of work.
+
+.step(data-title='Showing a list of appointments', data-file="reminders/views.py", data-highlight='5-11', data-language="htmlembedded")
+  :markdown
+    ## Showing a list of appointments
+
+    Let's tackle showing a list of appointments first.
+
+    Django's [ListView](https://docs.djangoproject.com/en/1.8/ref/class-based-views/generic-display/#listview) class was born for this.
+
+    All we need to do it point it at our `Appointment` model and it will handle building a QuerySet of all appointments for us.
+
+    And wiring up this view in our `urls.py` module is just as easy as our `AppointmentCreateView`:
+
+    ```python
+    from .views import AppointmentListView
+    ...
+    url(r'^$', AppointmentListView.as_view(), name='list_appointments'),
+    ```
+
+    If we name our template file `appointment_list.html` our `AppointmentListView` will find it automatically. Let's check it out next.
+
+.step(data-title="Appointment list template", data-file="templates/reminders/appointment_list.html", data-language="htmlembedded")
+  :markdown
+    ## Appointment list template
+
+    Our `AppointmentListView` passes its list of appointment objects to our template in the `object_list` variable.
+
+    If that variable is empty, we include a `<p>` tag saying there are no upcoming appointments.
+
+    Otherwise we populate a table with a row for each appointment in our list. We can use our handy `get_absolute_url` method again to include a link to each appointment's detail page.
+
+    We also use the [{% url %}](https://docs.djangoproject.com/en/1.8/ref/templates/builtins/#url) template tag to include links to our edit and delete views.
+
+    And now that our appointment listing requirement is complete, let's cover how to build those views next.
