@@ -37,8 +37,12 @@ class Appointment(models.Model):
             # Revoke that task in case its time has changed
             celery_app.control.revoke(self.task_id)
 
+        # Save our appointment, which populates self.pk, used in schedule_reminder
+        super(Appointment, self).save(*args, **kwargs)
+
         # Schedule a new reminder task for this appointment
         result = self.schedule_reminder()
         self.task_id = result.id
 
+        # Save our appointment again, with the new task_id
         super(Appointment, self).save(*args, **kwargs)

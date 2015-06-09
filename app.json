@@ -1,0 +1,42 @@
+{
+  "name": "Appointment Reminders (Django)",
+  "description": "Appointment Reminders in Django with Twilio",
+  "repository": "https://github.com/atbaker/appointment-reminders-django",
+  "keywords": [
+    "sms", "phone", "twilio", "appointment reminders", "automation", "django", "celery"
+  ],
+  "addons": [
+    "heroku-postgresql:hobby-dev",
+    "redistogo:nano"
+  ],
+  "env": {
+    "TWILIO_ACCOUNT_SID": {
+      "description": "Your Twilio account secret ID, you can find at: https://www.twilio.com/user/account",
+      "value": "enter_your_account_sid_here",
+      "required": true
+    },
+    "TWILIO_AUTH_TOKEN": {
+      "description": "Your secret Twilio Auth token, you can find at: https://www.twilio.com/user/account",
+      "value": "enter_your_auth_token_here",
+      "required": true
+    },
+    "TWILIO_NUMBER": {
+      "description": "The Twilio phone number you are using for this app. You can get one here: https://www.twilio.com/user/account/phone-numbers/incoming",
+      "value": "+15005550006",
+      "required": true
+    },
+    "DJANGO_SETTINGS_MODULE": {
+      "description": "Instructs our app to use the production settings module",
+      "value": "appointments.settings.production",
+      "required": true
+    },
+    "DJANGO_SECRET_KEY": {
+      "description": "A unique, unpredictable key for your Django app",
+      "generator": "secret"
+    }
+  },
+  "scripts": {
+    "postdeploy": "python manage.py migrate"
+  },
+  "success_url": "/"
+}

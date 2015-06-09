@@ -16,22 +16,27 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'not-so-secret'
 
-# Twilio API settings
+# Most important settings
+
+# Twilio API
 TWILIO_NUMBER = os.environ.get('TWILIO_NUMBER')
 
-# Celery settings
+# Address of Redis instance, our Celery broker
 BROKER_URL = 'redis://localhost:6379/0'
+BROKER_POOL_LIMIT = 8
 
 # Reminder time: how early text messages are sent in advance of appointments
 REMINDER_TIME = 30 # minutes
 
-ALLOWED_HOSTS = []
+# Time zone (replace with yours)
+TIME_ZONE = 'America/New_York'
 
+ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -104,8 +109,6 @@ DATABASES = {
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
 
 USE_I18N = True
 

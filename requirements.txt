@@ -2,8 +2,11 @@
 
 arrow==0.5.4
 celery[redis]==3.1.18
+dj-database-url==0.3.0
 Django==1.8.2
 django-bootstrap3==5.4.0
 django-forms-bootstrap==3.0.1
 gunicorn==19.3.0
 psycopg2==2.6
+twilio==4.4.0
+whitenoise==1.0.6
