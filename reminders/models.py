@@ -1,16 +1,20 @@
+from __future__ import unicode_literals
+
 from appointments.settings import celery_app
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 
 import arrow
 
+@python_2_unicode_compatible
 class Appointment(models.Model):
     name = models.CharField(max_length=150)
     phone_number = models.CharField(max_length=15)
     time = models.DateTimeField()
-    task_id = models.CharField(max_length=50, blank=True, editable=False)
 
+    task_id = models.CharField(max_length=50, blank=True, editable=False)
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -18,18 +22,6 @@ class Appointment(models.Model):
 
     def get_absolute_url(self):
         return reverse('view_appointment', args=[str(self.id)])
-
-    def get_task_id(self):
-        return '{0}-{1}'.format(self.id, self.time)
-
-    def schedule_reminder(self):
-        appointment_time = arrow.get(self.time)
-        reminder_time = appointment_time.replace(minutes=-settings.REMINDER_TIME - 1)
-
-        from .tasks import send_sms_reminder
-        result = send_sms_reminder.apply_async((self.pk,), eta=reminder_time)
-
-        return result
 
     def save(self, *args, **kwargs):
         # Check if we have scheduled a reminder for this appointment before
@@ -46,3 +38,12 @@ class Appointment(models.Model):
 
         # Save our appointment again, with the new task_id
         super(Appointment, self).save(*args, **kwargs)
+
+    def schedule_reminder(self):
+        appointment_time = arrow.get(self.time)
+        reminder_time = appointment_time.replace(minutes=-settings.REMINDER_TIME - 1)
+
+        from .tasks import send_sms_reminder
+        result = send_sms_reminder.apply_async((self.pk,), eta=reminder_time)
+
+        return result

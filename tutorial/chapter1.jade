@@ -4,17 +4,17 @@
 
     Ready to implement appointment reminders in your application? Here's how it works at a high level:
 
-      1. An administrator creates an appointment for a future date and time, and stores a customer's phone number in the database for that appointment
-      1. A background process checks the database on a regular interval, looking for appointments that require a reminder to be sent out
-      1. At a configured time in advance of the appointment, an SMS reminder is sent out to the customer to remind them of their appointment
+      1. An administrator (our user) creates an appointment for a future date and time, and stores a customer's phone number in the database for that appointment
+      1. When that appointment is saved a background task is scheduled to send a reminder to that customer before their appointment starts
+      1. At a configured time in advance of the appointment, the background task sends an SMS reminder to the customer to remind them of their appointment
 
     ## Building Blocks
 
     Here are the technologies we'll use to get this done:
 
-    * [Ruby on Rails](http://rubyonrails.org/) to create a database-driven web application
+    * [Django](https://www.djangoproject.com/) to create a database-driven web application
     * [The Messages Resource](/docs/api/rest/sending-sms) from Twilio's REST API to send text messages
-    * [Delayed::Job](https://github.com/collectiveidea/delayed_job) to help us schedule and execute background tasks on a recurring basis
+    * [Celery](http://www.celeryproject.org/) to help us schedule and execute background tasks on a recurring basis
 
     ## How To Read This Tutorial
 
@@ -22,13 +22,25 @@
 
     Let's get started! Click the right arrow to move on to the next step of the tutorial.
 
-.step(data-title="About This Tutorial")
+.step(data-title="About This Tutorial", data-file="requirements.txt")
   :markdown
     ## About This Tutorial
 
     In this tutorial, we will be working through a series of [user stories](http://en.wikipedia.org/wiki/User_story) that describe how to fully implement account verification in a web application. Our team implemented this example application in about 12 story points (roughly equivalent to 12 working hours).
 
-    Let's get started with our first user story around creating a new user account.
+    **A note about tools**
+
+    We're building this app for Django 1.8 on Python 3.4, but all our code works in Python 2.7 too. We're big fans of [Two Scoops of Django](http://twoscoopspress.org/products/two-scoops-of-django-1-8) and we will use many best practices outlined there.
+
+    In addition to Celery, we will use a few other Python libraries to make our task easier:
+
+    - The [twilio-python](https://github.com/twilio/twilio-python) Python helper library
+    - [django-bootstrap3](https://github.com/dyve/django-bootstrap3) and [django-forms-bootstrap](https://github.com/pinax/django-forms-bootstrap) to make our form HTML simpler and prettier
+    - The fantastic [arrow](http://crsmithdev.com/arrow/) library to make our datetime math easier
+
+    We will also use [PostgreSQL](http://www.postgresql.org/) for our database and [Redis](http://redis.io/) as our [Celery message broker](http://docs.celeryproject.org/en/latest/getting-started/brokers/index.html).
+
+    Now let's get started with our first user story: creating a new user account.
 
 .step(data-title='The User Story')
   h2 Creating an Appointment
@@ -37,50 +49,64 @@
   :markdown
     In order to build an automated appointment reminder app, we probably should start with an appointment. This story requires that we create a bit of UI and a model object to create and save a new `Appointment` in our system. At a high level, here's what we will need to add:
 
-    * A form to enter details about the appointment
-    * A route and controller function on the server to render the form 
-    * A route and controller function on the server to handle the form POST request
-    * A persistent `Appointment` model object to store information about the user 
+    * An HTML form to enter details about the appointment
+    * A view to render our form and accept POST data from it
+    * An `Appointment` model to store information we need to send the reminder
 
     Let's start by looking at the model, where we decide what information we want to store with the appointment.
 
-.step(data-title='Rails Generator', data-file="requirements.txt", data-language="python")
+.step(data-title='The Appointment model', data-file="reminders/models.py", data-highlight='11-21', data-language="python")
   :markdown
-    ## The Rails Generator
+    ## The Appointment Model
 
-    Usually at this point in the tutorial we would build our model, view and controller from scratch (see [account verification](/docs/howto/walkthrough/account-verficiation/ruby/rails#2) as an example). But since the appointment model is so straight-forward, and we really just want the basic CRUD scaffolding, we're going to use the Rails generator for once.
+    We only need to store three pieces of data about each appointment to send a reminder:
+    - The customer's name
+    - Their phone number
+    - The date and time of their appointment
 
-    *A Note about Tools*
+    That translates into a pretty simple Django model. The `name` and `phone_number` fields are [CharFields](https://docs.djangoproject.com/en/1.8/ref/models/fields/#charfield) and the `time` field is a [DateTime](https://docs.djangoproject.com/en/1.8/ref/models/fields/#datetimefield) field.
 
-    In this app we're using Rails 4, but it will be very similar for 3 and below. We will also be using the [twilio-ruby](https://github.com/twilio/twilio-ruby) helper library. Lastly we use bootstrap to simplify design, and in this case there is a gem that will generate bootstrap-themed views called [twitter-bootstrap-rails](https://github.com/seyhunak/twitter-bootstrap-rails). Please check out these tools when you have a chance, now let's move on to generating our scaffolding.
+    We also included two additional fields: `task_id` and `created`. The `task_id` field will help us keep track of the corresponding reminder task for this appointment. The `created` field is just a timestamp populated when an appointment is created.
 
-    *Generate a Model, View and Controller*
+    Finally, we defined a `__str__` method to tell Django how to represent instances of our model as text. This method uses the primary key and the customer's name to create a readable representation of an appointment.
 
-    [Rails generate](http://guides.rubyonrails.org/command_line.html#rails-generate) is a command-line tool that generates rails components like models, views, tests and more. For our purposes we are going to use the big kahuna generator, `scaffold` to generate everything at once.
+    **Python 2/3 Compatibility**
 
-    Here's how we did it. From inside our rails app, we ran:
-    ```
-    $ bin/rails generate scaffold Appointment name:string phone_number:string time:datetime
+    To keep our project compatible with Python 2, we use the `python_2_unicode_compatible` decorator on our model.
 
-    ```
+    This decorator tells Django to use our model's `__str__` method to provide a `__unicode__` method when running under Python 2.
 
-    This tells our generator to create the 'scaffolding' for a resource called Appointment, which has the properties name, phone_number and time. Now let's go to the model that was generated and add some stuff to it.
+    You can read more about it in the [Porting to Python 3](https://docs.djangoproject.com/en/1.8/topics/python3/#str-and-unicode-methods) section of the Django documentation.
 
-.step(data-title='Appointment Model', data-file='requirements.txt', data-highlight='1-4')
+.step(data-title='Migrations and the Django Admin', data-file='reminders/admin.py')
   :markdown
-    ## Appointment Model
+    ## Migrations and the Django Admin
 
-    The appointment model is pretty simple out of the box, but since humans will be interacting with it let's make sure we add some data validation.
+    To create a table for our new model in our Postgres database, we need to make a [migration](https://docs.djangoproject.com/en/1.8/topics/migrations/).
 
-    *Data Validation*
+    Our `Appointment` model lives in an app we called `reminders`, so the `manage.py` command is:
 
-    Validations are important since we want to make sure only accurate data is being saved into our database. In this case, we only want to validate that all of our required fields are present. We can do this by creating a `validates` statement with `presence: true`.
+    ```
+    $ python manage.py makemigrations reminders
+    ```
 
-    It is likely that our Appointment Model would be created by an admin person at the site of the appointment. Well it would be great if we could give our admin user some feedback when they create the appointment. Luckily in Rails if we add validations to our models we get error reporting for free with the session's `flash` object.
+    To apply the migration, first make sure your local Postgres database is running ([Postgres.app](http://postgresapp.com/) is an easy way to run Postgres on a Mac). Then run:
 
-    One note: in order to run this demo you would need to run `rake db:migrate` which would run the migrations in our db/migrate folder. For this tutorial we're gonna focus on the core concepts but if you want to learn more about migrations you can read the [Rails guide](http://edgeguides.rubyonrails.org/active_record_migrations.html) on the subject.
+    ```
+    $ python manage.py migrate
+    ```
 
-    Now we're ready to move up to the controller level of the application, starting with the HTTP request routes we'll need.
+    Django's built-in admin is a convenient tool for playing with newly declared models.
+
+    To wire up our `Appointment` model with the Django admin, just add this simple `admin.py` alongside your `models.py`.
+
+    Before you can log in to the Django admin, you need to create a superuser for yourself. You can do that with:
+
+    ```
+    $ python manage.py createsuperuser
+    ```
+
+    Now if you start your development server with `python manage.py runserver`, you can create and update new `Appointment` objects through the `/admin` interface.
 
 .step(data-title='Adding Routes', data-file='requirements.txt')
   :markdown

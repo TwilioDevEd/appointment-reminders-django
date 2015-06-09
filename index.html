@@ -12,42 +12,66 @@
 }</style><link rel="shortcut icon" href="//twilio.com/bundles/marketing/img/favicons/favicon.ico"><link rel="apple-touch-icon" href="//twilio.com/bundles/marketing/img/favicons/favicon_57.png"><link rel="apple-touch-icon" sizes="72x72" href="//twilio.com/bundles/marketing/img/favicons/favicon_72.png"><link rel="apple-touch-icon" sizes="114x114" href="//twilio.com/bundles/marketing/img/favicons/favicon_114.png"><link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css"><link rel="stylesheet" href="viewsaurus.css"></head><body><div class="wrapper"><div id="viewsaurus" data-title="Appointment Reminders"><div class="saurus-panes"><div class="saurus-prose"><div class="saurus-prose-header"><div class="title-outer"><span class="step-title">Appointment Reminders</span></div></div><div class="saurus-nav-buttons"><div class="saurus-nav-button nav-overview"><div class="saurus-nav-button-inner"><i class="fa fa-fw fa-list"></i></div><div class="nav-divider"></div></div><div class="saurus-nav-button nav-previous"><div class="saurus-nav-button-inner"><a href=""> <i class="fa fa-fw fa-play fa-rotate-180"></i></a></div><div class="nav-divider"></div></div><div class="saurus-nav-button nav-next clickable"><div class="saurus-nav-button-inner"><a href="#1"> <i class="fa fa-fw fa-play"></i></a></div></div><div class="saurus-next-title"><span class="next-title-inner"></span></div></div><div class="saurus-progress-bar"></div><div class="saurus-start"><p>Learn to implement appointment reminders in your web app with Twilio. Appointment reminders allow you to automate the process of reaching out to your customers in advance of an upcoming appointment.</p><a href="#0">Start Tutorial</a></div><div class="saurus-content"><div data-title="Create an Appointment" class="chapter"><div data-title="Introduction" class="step"><h2 id="how-it-works">How It Works</h2>
 <p>Ready to implement appointment reminders in your application? Here&#39;s how it works at a high level:</p>
 <ol>
-<li>An administrator creates an appointment for a future date and time, and stores a customer&#39;s phone number in the database for that appointment</li>
-<li>A background process checks the database on a regular interval, looking for appointments that require a reminder to be sent out</li>
-<li>At a configured time in advance of the appointment, an SMS reminder is sent out to the customer to remind them of their appointment</li>
+<li>An administrator (our user) creates an appointment for a future date and time, and stores a customer&#39;s phone number in the database for that appointment</li>
+<li>When that appointment is saved a background task is scheduled to send a reminder to that customer before their appointment starts</li>
+<li>At a configured time in advance of the appointment, the background task sends an SMS reminder to the customer to remind them of their appointment</li>
 </ol>
 <h2 id="building-blocks">Building Blocks</h2>
 <p>Here are the technologies we&#39;ll use to get this done:</p>
 <ul>
-<li><a href="http://rubyonrails.org/">Ruby on Rails</a> to create a database-driven web application</li>
+<li><a href="https://www.djangoproject.com/">Django</a> to create a database-driven web application</li>
 <li><a href="/docs/api/rest/sending-sms">The Messages Resource</a> from Twilio&#39;s REST API to send text messages</li>
-<li><a href="https://github.com/collectiveidea/delayed_job">Delayed::Job</a> to help us schedule and execute background tasks on a recurring basis</li>
+<li><a href="http://www.celeryproject.org/">Celery</a> to help us schedule and execute background tasks on a recurring basis</li>
 </ul>
 <h2 id="how-to-read-this-tutorial">How To Read This Tutorial</h2>
 <p>To implement appointment reminders, we will be working through a series of <a href="http://en.wikipedia.org/wiki/User_story">user stories</a> that describe how to fully implement appointment reminders in a web application. We&#39;ll walk through the code required to satisfy each story, and explore what we needed to add at each step.</p>
 <p>Let&#39;s get started! Click the right arrow to move on to the next step of the tutorial.</p>
-</div><div data-title="About This Tutorial" class="step"><h2 id="about-this-tutorial">About This Tutorial</h2>
+</div><div data-title="About This Tutorial" data-file="requirements.txt" class="step"><h2 id="about-this-tutorial">About This Tutorial</h2>
 <p>In this tutorial, we will be working through a series of <a href="http://en.wikipedia.org/wiki/User_story">user stories</a> that describe how to fully implement account verification in a web application. Our team implemented this example application in about 12 story points (roughly equivalent to 12 working hours).</p>
-<p>Let&#39;s get started with our first user story around creating a new user account.</p>
+<p><strong>A note about tools</strong></p>
+<p>We&#39;re building this app for Django 1.8 on Python 3.4, but all our code works in Python 2.7 too. We&#39;re big fans of <a href="http://twoscoopspress.org/products/two-scoops-of-django-1-8">Two Scoops of Django</a> and we will use many best practices outlined there.</p>
+<p>In addition to Celery, we will use a few other Python libraries to make our task easier:</p>
+<ul>
+<li>The <a href="https://github.com/twilio/twilio-python">twilio-python</a> Python helper library</li>
+<li><a href="https://github.com/dyve/django-bootstrap3">django-bootstrap3</a> and <a href="https://github.com/pinax/django-forms-bootstrap">django-forms-bootstrap</a> to make our form HTML simpler and prettier</li>
+<li>The fantastic <a href="http://crsmithdev.com/arrow/">arrow</a> library to make our datetime math easier</li>
+</ul>
+<p>We will also use <a href="http://www.postgresql.org/">PostgreSQL</a> for our database and <a href="http://redis.io/">Redis</a> as our <a href="http://docs.celeryproject.org/en/latest/getting-started/brokers/index.html">Celery message broker</a>.</p>
+<p>Now let&#39;s get started with our first user story: creating a new user account.</p>
 </div><div data-title="The User Story" class="step"><h2>Creating an Appointment</h2><blockquote> 
 As a user, I want to create an appointment with a name, guest phone numbers, and a time in the future.</blockquote><p>In order to build an automated appointment reminder app, we probably should start with an appointment. This story requires that we create a bit of UI and a model object to create and save a new <code>Appointment</code> in our system. At a high level, here&#39;s what we will need to add:</p>
 <ul>
-<li>A form to enter details about the appointment</li>
-<li>A route and controller function on the server to render the form </li>
-<li>A route and controller function on the server to handle the form POST request</li>
-<li>A persistent <code>Appointment</code> model object to store information about the user </li>
+<li>An HTML form to enter details about the appointment</li>
+<li>A view to render our form and accept POST data from it</li>
+<li>An <code>Appointment</code> model to store information we need to send the reminder</li>
 </ul>
 <p>Let&#39;s start by looking at the model, where we decide what information we want to store with the appointment.</p>
-</div><div data-title="Rails Generator" data-file="requirements.txt" data-language="python" class="step"><h2 id="the-rails-generator">The Rails Generator</h2>
-<p>Usually at this point in the tutorial we would build our model, view and controller from scratch (see <a href="/docs/howto/walkthrough/account-verficiation/ruby/rails#2">account verification</a> as an example). But since the appointment model is so straight-forward, and we really just want the basic CRUD scaffolding, we&#39;re going to use the Rails generator for once.</p>
-<p><em>A Note about Tools</em></p>
-<p>In this app we&#39;re using Rails 4, but it will be very similar for 3 and below. We will also be using the <a href="https://github.com/twilio/twilio-ruby">twilio-ruby</a> helper library. Lastly we use bootstrap to simplify design, and in this case there is a gem that will generate bootstrap-themed views called <a href="https://github.com/seyhunak/twitter-bootstrap-rails">twitter-bootstrap-rails</a>. Please check out these tools when you have a chance, now let&#39;s move on to generating our scaffolding.</p>
-<p><em>Generate a Model, View and Controller</em></p>
-<p><a href="http://guides.rubyonrails.org/command_line.html#rails-generate">Rails generate</a> is a command-line tool that generates rails components like models, views, tests and more. For our purposes we are going to use the big kahuna generator, <code>scaffold</code> to generate everything at once.</p>
-<p>Here&#39;s how we did it. From inside our rails app, we ran:</p>
-<pre><code>$ bin/rails generate scaffold Appointment name:string phone_number:string time:datetime
-</code></pre><p>This tells our generator to create the &#39;scaffolding&#39; for a resource called Appointment, which has the properties name, phone_number and time. Now let&#39;s go to the model that was generated and add some stuff to it.</p>
-</div><div data-title="Appointment Model" data-file="requirements.txt" data-highlight="1-4" class="step"><h2 id="appointment-model">Appointment Model</h2>
+</div><div data-title="The Appointment model" data-file="reminders/models.py" data-highlight="11-21" data-language="python" class="step"><h2 id="the-appointment-model">The Appointment Model</h2>
+<p>We only need to store three pieces of data about each appointment to send a reminder:</p>
+<ul>
+<li>The customer&#39;s name</li>
+<li>Their phone number</li>
+<li>The date and time of their appointment</li>
+</ul>
+<p>That translates into a pretty simple Django model. The <code>name</code> and <code>phone_number</code> fields are <a href="https://docs.djangoproject.com/en/1.8/ref/models/fields/#charfield">CharFields</a> and the <code>time</code> field is a <a href="https://docs.djangoproject.com/en/1.8/ref/models/fields/#datetimefield">DateTime</a> field.</p>
+<p>We also included two additional fields: <code>task_id</code> and <code>created</code>. The <code>task_id</code> field will help us keep track of the corresponding reminder task for this appointment. The <code>created</code> field is just a timestamp populated when an appointment is created.</p>
+<p>Finally, we defined a <code>__str__</code> method to tell Django how to represent instances of our model as text. This method uses the primary key and the customer&#39;s name to create a readable representation of an appointment.</p>
+<p><strong>Python 2/3 Compatibility</strong></p>
+<p>To keep our project compatible with Python 2, we use the <code>python_2_unicode_compatible</code> decorator on our model.</p>
+<p>This decorator tells Django to use our model&#39;s <code>__str__</code> method to provide a <code>__unicode__</code> method when running under Python 2.</p>
+<p>You can read more about it in the <a href="https://docs.djangoproject.com/en/1.8/topics/python3/#str-and-unicode-methods">Porting to Python 3</a> section of the Django documentation.</p>
+</div><div data-title="Migrations and the Django Admin" data-file="reminders/admin.py" class="step"><h2 id="migrations-and-the-django-admin">Migrations and the Django Admin</h2>
+<p>To create a table for our new model in our Postgres database, we need to make a <a href="https://docs.djangoproject.com/en/1.8/topics/migrations/">migration</a>.</p>
+<p>Our <code>Appointment</code> model lives in an app we called <code>reminders</code>, so the <code>manage.py</code> command is:</p>
+<pre><code>$ python manage.py makemigrations reminders
+</code></pre><p>To apply the migration, first make sure your local Postgres database is running (<a href="http://postgresapp.com/">Postgres.app</a> is an easy way to run Postgres on a Mac). Then run:</p>
+<pre><code>$ python manage.py migrate
+</code></pre><p>Django&#39;s built-in admin is a convenient tool for playing with newly declared models.</p>
+<p>To wire up our <code>Appointment</code> model with the Django admin, just add this simple <code>admin.py</code> alongside your <code>models.py</code>.</p>
+<p>Before you can log in to the Django admin, you need to create a superuser for yourself. You can do that with:</p>
+<pre><code>$ python manage.py createsuperuser
+</code></pre><p>Now if you start your development server with <code>python manage.py runserver</code>, you can create and update new <code>Appointment</code> objects through the <code>/admin</code> interface.</p>
+<h2 id="appointment-model">Appointment Model</h2>
 <p>The appointment model is pretty simple out of the box, but since humans will be interacting with it let&#39;s make sure we add some data validation.</p>
 <p><em>Data Validation</em></p>
 <p>Validations are important since we want to make sure only accurate data is being saved into our database. In this case, we only want to validate that all of our required fields are present. We can do this by creating a <code>validates</code> statement with <code>presence: true</code>.</p>
@@ -68,6 +92,8 @@ As a user, I want to create an appointment with a name, guest phone numbers, and
 <p>In our controller we take the input from our form and create a new <code>Appointment</code> model. If the appointment is saved to the database successfully, we redirect to the appointment details view which will show the creator the new appointment and allow them to edit or delete it.</p>
 <p>Next we&#39;re going to take a look at the generated controllers for edit and delete.</p>
 </div></div><div data-title="Interacting with Appointments" class="chapter"></div><div data-title="Send a Reminder" class="chapter"></div>
-<div class="saurus-files" style="display:none;"><textarea class="saurus-file" data-file="requirements.txt" data-mode="text">IyBSZXF1aXJlbWVudHMgZm9yIHRoZSBhcHBvaW50bWVudHMgRGphbmdvIHByb2plY3QKCmFycm93PT0wLjUuNApjZWxlcnlbcmVkaXNdPT0zLjEuMTgKRGphbmdvPT0xLjguMgpkamFuZ28tYm9vdHN0cmFwMz09NS40LjAKZGphbmdvLWZvcm1zLWJvb3RzdHJhcD09My4wLjEKZ3VuaWNvcm49PTE5LjMuMApwc3ljb3BnMj09Mi42Cg==</textarea>
+<div class="saurus-files" style="display:none;"><textarea class="saurus-file" data-file="requirements.txt" data-mode="text">IyBSZXF1aXJlbWVudHMgZm9yIHRoZSBhcHBvaW50bWVudHMgRGphbmdvIHByb2plY3QKCiMgRGphbmdvICgxLjggaXMgYSBsb25nLXRlcm0gc3VwcG9ydCByZWxlYXNlKQpEamFuZ289PTEuOAoKIyBUaGlyZC1wYXJ0eSBhcHAgZGVwZW5kZW5jaWVzCmFycm93PT0wLjUuNApjZWxlcnlbcmVkaXNdPT0zLjEuMTgKZGphbmdvLWJvb3RzdHJhcDM9PTUuNC4wCmRqYW5nby1mb3Jtcy1ib290c3RyYXA9PTMuMC4xCnBzeWNvcGcyPT0yLjYKdHdpbGlvPT00LjQuMAp3aGl0ZW5vaXNlPT0xLjAuNgoKIyBQcm9kdWN0aW9uIGRlcGVuZGVuY2llcwpkai1kYXRhYmFzZS11cmw9PTAuMy4wCmd1bmljb3JuPT0xOS4zLjAK</textarea>
+<textarea class="saurus-file" data-file="reminders/models.py" data-mode="python">ZnJvbSBfX2Z1dHVyZV9fIGltcG9ydCB1bmljb2RlX2xpdGVyYWxzCgpmcm9tIGFwcG9pbnRtZW50cy5zZXR0aW5ncyBpbXBvcnQgY2VsZXJ5X2FwcApmcm9tIGRqYW5nby5jb25mIGltcG9ydCBzZXR0aW5ncwpmcm9tIGRqYW5nby5jb3JlLnVybHJlc29sdmVycyBpbXBvcnQgcmV2ZXJzZQpmcm9tIGRqYW5nby5kYiBpbXBvcnQgbW9kZWxzCmZyb20gZGphbmdvLnV0aWxzLmVuY29kaW5nIGltcG9ydCBweXRob25fMl91bmljb2RlX2NvbXBhdGlibGUKCmltcG9ydCBhcnJvdwoKQHB5dGhvbl8yX3VuaWNvZGVfY29tcGF0aWJsZQpjbGFzcyBBcHBvaW50bWVudChtb2RlbHMuTW9kZWwpOgogICAgbmFtZSA9IG1vZGVscy5DaGFyRmllbGQobWF4X2xlbmd0aD0xNTApCiAgICBwaG9uZV9udW1iZXIgPSBtb2RlbHMuQ2hhckZpZWxkKG1heF9sZW5ndGg9MTUpCiAgICB0aW1lID0gbW9kZWxzLkRhdGVUaW1lRmllbGQoKQogICAgCiAgICB0YXNrX2lkID0gbW9kZWxzLkNoYXJGaWVsZChtYXhfbGVuZ3RoPTUwLCBibGFuaz1UcnVlLCBlZGl0YWJsZT1GYWxzZSkKICAgIGNyZWF0ZWQgPSBtb2RlbHMuRGF0ZVRpbWVGaWVsZChhdXRvX25vd19hZGQ9VHJ1ZSkKCiAgICBkZWYgX19zdHJfXyhzZWxmKToKICAgICAgICByZXR1cm4gJ0FwcG9pbnRtZW50ICN7MH0gLSB7MX0nLmZvcm1hdChzZWxmLnBrLCBzZWxmLm5hbWUpCgogICAgZGVmIGdldF9hYnNvbHV0ZV91cmwoc2VsZik6CiAgICAgICAgcmV0dXJuIHJldmVyc2UoJ3ZpZXdfYXBwb2ludG1lbnQnLCBhcmdzPVtzdHIoc2VsZi5pZCldKQoKICAgIGRlZiBzYXZlKHNlbGYsICphcmdzLCAqKmt3YXJncyk6CiAgICAgICAgIyBDaGVjayBpZiB3ZSBoYXZlIHNjaGVkdWxlZCBhIHJlbWluZGVyIGZvciB0aGlzIGFwcG9pbnRtZW50IGJlZm9yZQogICAgICAgIGlmIHNlbGYudGFza19pZDoKICAgICAgICAgICAgIyBSZXZva2UgdGhhdCB0YXNrIGluIGNhc2UgaXRzIHRpbWUgaGFzIGNoYW5nZWQKICAgICAgICAgICAgY2VsZXJ5X2FwcC5jb250cm9sLnJldm9rZShzZWxmLnRhc2tfaWQpCgogICAgICAgICMgU2F2ZSBvdXIgYXBwb2ludG1lbnQsIHdoaWNoIHBvcHVsYXRlcyBzZWxmLnBrLCB1c2VkIGluIHNjaGVkdWxlX3JlbWluZGVyCiAgICAgICAgc3VwZXIoQXBwb2ludG1lbnQsIHNlbGYpLnNhdmUoKmFyZ3MsICoqa3dhcmdzKQoKICAgICAgICAjIFNjaGVkdWxlIGEgbmV3IHJlbWluZGVyIHRhc2sgZm9yIHRoaXMgYXBwb2ludG1lbnQKICAgICAgICByZXN1bHQgPSBzZWxmLnNjaGVkdWxlX3JlbWluZGVyKCkKICAgICAgICBzZWxmLnRhc2tfaWQgPSByZXN1bHQuaWQKCiAgICAgICAgIyBTYXZlIG91ciBhcHBvaW50bWVudCBhZ2Fpbiwgd2l0aCB0aGUgbmV3IHRhc2tfaWQKICAgICAgICBzdXBlcihBcHBvaW50bWVudCwgc2VsZikuc2F2ZSgqYXJncywgKiprd2FyZ3MpCgogICAgZGVmIHNjaGVkdWxlX3JlbWluZGVyKHNlbGYpOgogICAgICAgIGFwcG9pbnRtZW50X3RpbWUgPSBhcnJvdy5nZXQoc2VsZi50aW1lKQogICAgICAgIHJlbWluZGVyX3RpbWUgPSBhcHBvaW50bWVudF90aW1lLnJlcGxhY2UobWludXRlcz0tc2V0dGluZ3MuUkVNSU5ERVJfVElNRSAtIDEpCgogICAgICAgIGZyb20gLnRhc2tzIGltcG9ydCBzZW5kX3Ntc19yZW1pbmRlcgogICAgICAgIHJlc3VsdCA9IHNlbmRfc21zX3JlbWluZGVyLmFwcGx5X2FzeW5jKChzZWxmLnBrLCksIGV0YT1yZW1pbmRlcl90aW1lKQoKICAgICAgICByZXR1cm4gcmVzdWx0Cg==</textarea>
+<textarea class="saurus-file" data-file="reminders/admin.py" data-mode="python">ZnJvbSBkamFuZ28uY29udHJpYiBpbXBvcnQgYWRtaW4KCmZyb20gLm1vZGVscyBpbXBvcnQgQXBwb2ludG1lbnQKCmFkbWluLnNpdGUucmVnaXN0ZXIoQXBwb2ludG1lbnQsIGFkbWluLk1vZGVsQWRtaW4pCg==</textarea>
 </div>
 </div><div class="saurus-overview"><ul></ul></div></div><div class="saurus-code"><div class="file-path"><span class="crumb-container"></span><i class="fa fa-fw fa-folder"></i></div><div class="saurus-editor"></div></div><div class="saurus-explorer"><div class="saurus-file-list"></div></div></div></div></div><script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script><script src="ace/ace.js"></script><script src="ace/theme-monokai.js"></script><script src="viewsaurus.js"></script></body></html>
