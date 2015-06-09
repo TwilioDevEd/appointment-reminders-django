@@ -10,6 +10,18 @@ This project is preconfigured to run on Heroku. Deploy it now:
 
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/atbaker/appointment-reminders-django)
 
+To start the [Celery](http://docs.celeryproject.org/en/latest/index.html) worker process, which sends the SMS reminders asynchronously, you need to change a few settings in your Heroku dashboard:
+
+#. After the app deploys, click the **Manage app** button to view this app's settings
+#. Click **Edit** in the top right corner of the dashboard
+#. Change the app to use **Free pricing** - the first option
+#. Click the toggle for the **worker** process, enabling it for free pricing
+#. Click **Save** in the top right corner
+
+Now you're all set.
+
+To view your app, click the **...** menu in the top right corner and select **Open app**.
+
 ### Local development
 
 This project is built using the [Django](https://www.djangoproject.com/) web framework. It runs on Python 2.7+ and Python 3.4+.
