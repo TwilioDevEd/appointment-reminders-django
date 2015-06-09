@@ -78,7 +78,7 @@
 
     You can read more about it in the [Porting to Python 3](https://docs.djangoproject.com/en/1.8/topics/python3/#str-and-unicode-methods) section of the Django documentation.
 
-.step(data-title='Migrations and the Django Admin', data-file='reminders/admin.py')
+.step(data-title='Migrations and the Django Admin', data-file='reminders/admin.py', data-language="python")
   :markdown
     ## Migrations and the Django Admin
 
@@ -107,6 +107,56 @@
     ```
 
     Now if you start your development server with `python manage.py runserver`, you can create and update new `Appointment` objects through the `/admin` interface.
+
+.step(data-title='New appointment view', data-file="reminders/views.py", data-highlight='16-19', data-language="python")
+  :markdown
+    ## New appointment view
+
+    The next step in getting our `Appointment` model out to the world is writing a view.
+
+    Django lets developers write views as [functions](https://docs.djangoproject.com/en/1.8/topics/http/views/) or [classes](https://docs.djangoproject.com/en/1.8/topics/class-based-views/).
+
+    Class-based views are great when your views need to support simple, [CRUD-like](http://en.wikipedia.org/wiki/Create,_read,_update_and_delete) features - perfect for our appointments app.
+
+    To make a view for creating new `Appointment` objects, we'll use Django's generic [CreateView](https://docs.djangoproject.com/en/1.8/ref/class-based-views/generic-editing/#django.views.generic.edit.CreateView) class.
+
+    All we need to specify is the model it should use and what fields it should include. We don't even need to declare a form - Django will use a [ModelForm](https://docs.djangoproject.com/en/1.8/topics/forms/modelforms/#modelform) for us behind the scenes.
+
+    **Success messages**
+
+    Our view is ready to go with just those first three lines of code, but we'll make it a little better by adding the [SuccessMessageMixin](https://docs.djangoproject.com/en/1.8/ref/contrib/messages/#adding-messages-in-class-based-views).
+
+    This mixin tells our view to pass the `success_message` property of our class to the [Django messages framework](https://docs.djangoproject.com/en/1.8/ref/contrib/messages/) after a successful creation. We will display those messages to the user in our template.
+
+.step(data-title='Wiring up the URLs', data-file='reminders/urls.py', data-highlight='11-12', data-language="python")
+  :markdown
+    ## Wiring up the URLs
+
+    Now that we have a view to create new appointments, we need to add a new URL to our URL dispatcher so users can get to it.
+
+    First, we'll add an entry in our Django project's root `urls.py` module to map all requests to URLs that start with `appointments` to the `urls.py` module in the `reminders` app directory:
+
+    ```python
+    from django.conf.urls import include
+
+    url(r'^appointments', include('reminders.urls')),
+    ```
+
+    Then we can add a URL for creating new appointments to our `reminders/urls.py` module.
+
+    We'll first create a new URL to handle requests to `/new`. We can connect that URL with our view by importing `AppointmentCreateView` from our `views` module and passing it as the second parameter of our URL declaration with `AppointmentCreateView.as_view()`.
+
+.step(data-title='New appointment form', data-file='templates/reminders/appointment_form.html', data-language='html')
+  :markdown
+    ## New appointment form
+
+    The last piece we need to let our users create new appointments is the HTML form.
+
+    Our form template inherits from our base template, which you can check out at `templates/base.html`.
+
+    We're using [Bootstrap](http://getbootstrap.com/) for the front end of our app, and we use the [django-forms-bootstrap](https://github.com/pinax/django-forms-bootstrap) library to help us render our form in our template with the `|as_bootstrap_horizontal` template filter.
+
+
 
 .step(data-title='Adding Routes', data-file='requirements.txt')
   :markdown
