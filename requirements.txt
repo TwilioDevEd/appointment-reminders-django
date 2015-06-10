@@ -15,3 +15,9 @@ whitenoise==1.0.6
 # Production dependencies
 dj-database-url==0.3.0
 gunicorn==19.3.0
+
+# Test dependencies
+coverage==3.7.1
+mock==1.0.1
+model-mommy==1.2.4
+six==1.9.0

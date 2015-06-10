@@ -30,7 +30,7 @@ class Appointment(models.Model):
         from .tasks import send_sms_reminder
         result = send_sms_reminder.apply_async((self.pk,), eta=reminder_time)
 
-        return result
+        return result.id
 
     def save(self, *args, **kwargs):
         # Check if we have scheduled a reminder for this appointment before
@@ -42,8 +42,7 @@ class Appointment(models.Model):
         super(Appointment, self).save(*args, **kwargs)
 
         # Schedule a new reminder task for this appointment
-        result = self.schedule_reminder()
-        self.task_id = result.id
+        self.task_id = self.schedule_reminder()
 
         # Save our appointment again, with the new task_id
         super(Appointment, self).save(*args, **kwargs)

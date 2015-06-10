@@ -1,0 +1,11 @@
+# Coverage configuration file
+
+[run]
+source = .
+
+omit = 
+  appointments/settings/local.py
+  appointments/settings/production.py
+  appointments/wsgi.py
+  */migrations/*
+  */tests.py
