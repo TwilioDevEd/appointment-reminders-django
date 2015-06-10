@@ -3,21 +3,21 @@
   blockquote
     | As an appointment system, I want to notify a customer via SMS an arbitrary interval before a future appointment.
   :markdown
-    To satisfy this user story, we need to make our application work on its own outside of any individual user interaction - asynchronously.
+    To satisfy this user story, we need to make our application work asynchronously - on its own independent of any individual user interaction.
 
-    The most popular Python library for asynchronous tasks is [Celery](http://www.celeryproject.org/). To integrate Celery with our application, we need to add a few new features:
+    The most popular Python library for asynchronous tasks is [Celery](http://www.celeryproject.org/). To integrate Celery with our application, we need to make a few changes:
 
     - Create a new function that sends an SMS message using information from an `Appointment` object
     - Register that function as a task with Celery so it can be executed asynchronously
     - Run a separate Celery worker process alongside our Django application to call our SMS reminder function at the right time for each appointment
 
-    If you're brand new to Celery, you might want to skim its documentation's [Introduction to Celery](http://docs.celeryproject.org/en/latest/getting-started/introduction.html) page before proceeding.
+    If you're brand new to Celery, you might want to skim its [Introduction to Celery](http://docs.celeryproject.org/en/latest/getting-started/introduction.html) page before proceeding.
 
 .step(data-title="Setting up Celery", data-file="appointments/settings/common.py", data-language="python", data-highlight="29-31")
   :markdown
     ## Setting up Celery
 
-    Integrating Celery with Django is simpler than it used to be.
+    Celery and Django are both big Python projects, but they can work together easily.
 
     [By following the instructions in the Celery docs](http://docs.celeryproject.org/en/latest/django/first-steps-with-django.html), we can include our Celery settings in our Django settings modules. We can also write our Celery tasks in `tasks.py` modules that live inside our Django apps, which keeps our project layout consistent and simple.
 
@@ -37,8 +37,86 @@
 
     If you want to see all the steps to get Django, Celery, Redis, and Postgres working on your machine [check out the README for this project on GitHub](https://github.com/TwilioDevEd/appointment-reminders-django).
 
-.step(data-title="Sending an SMS reminder", data-file="reminders/tasks.py", data-language="python")
+.step(data-title="Creating a Celery task", data-file="reminders/tasks.py", data-highlight="15-25", data-language="python")
   :markdown
-    ## Sending an SMS reminder
+    ## Creating a Celery task
 
-    Now that Celery is all set up, it's time to write a new task for sending our customer's SMS messages about their appointments.
+    Now that Celery is working with our project, it's time to write a new task for sending a customer an SMS message about their appointment.
+
+    Celery tasks are just Python functions at heart, so we defined a function called `send_sms_reminder` in `reminders/tasks.py` which we use to send the SMS message. The `@shared_task` decorator tells Celery to treat this function as an asynchronous task.
+
+    Our function takes an appointment's ID - it's primary key - as its only argument. We could pass the `Appointment` object itself as the argument, but this best practice ensures our SMS will use the most up-to-date version of our appointment's data.
+
+    It also gives us an opportunity to check if the appointment has been deleted before the reminder was sent, which we do at the top of our function. This way we won't send SMS reminders for appointments that don't exist anymore.
+
+.step(data-title="Sending an SMS message", data-file="reminders/tasks.py", data-language="python")
+  :markdown
+    ## Sending an SMS message
+
+    The next step in our `send_sms_reminder` task is to compose the text of our SMS message.
+
+    We use the handy [arrow](http://crsmithdev.com/arrow/) library to humanize our appointment's time relative to the present. A time value 30 minutes in the future becomes "30 minutes from now." A value 23 hours in the future becomes "tomorrow."
+
+    After that, all that's left to do is use the [twilio-python](https://github.com/twilio/twilio-python) library to send our message.
+
+    We instantiate a Twilio REST client at the top of the module, which looks for `TWILIO_ACCOUNT_SID` and `TWILIO_AUTH_TOKEN` environment variables to authenticate itself. You can find the correct values for you in [your account dashboard](https://www.twilio.com/user/account/settings).
+
+    Sending the SMS message itself is as easy as calling `client.messages.create()`, passing arguments for the body of the SMS message, the receipient's phone number, and the Twilio phone number you want to send this message from. Twilio will deliver the SMS message immediately.
+
+    With our `send_sms_reminder` task complete, let's look at how to call it when our appointments are created or updated.
+
+.step(data-title="Calling our reminder task", data-file="reminders/models.py", data-highlight="26-49", data-language="python")
+  :markdown
+    ## Calling our reminder task
+
+    Let's add a new method to our `Appointment` model called `schedule_reminder` which will schedule our new `send_sms_reminder` task.
+
+    The first thing we need to do is determine when to send the reminder. We'll use [arrow](http://crsmithdev.com/arrow/) again to help us figure it out.
+
+    First we call `arrow.get()` on our appointment's time to create an Arrow object out of that datetime. Then we'll use arrow's `.replace()` method to compute when we should send the reminder.
+
+    You can specify how early reminders should be sent in advance of an appointment by adjusting the `REMINDER_TIME` setting in `settings/common.py`.
+
+    The default is 30 minutes, and we pad our calculation here by one extra minute to give our SMS message time to work its way to our customer's phone. For most customers, however, it though it will be delivered almost instantly.
+
+    We then invoke our `send_sms_reminder` function as a Celery task by calling `send_sms_reminder.apply_async()`, passing this appointment's primary key as an argument.
+
+    We also pass the `reminder_time` variable to Celery's [eta](http://docs.celeryproject.org/en/latest/userguide/calling.html#eta-and-countdown) parameter (Estimated Time of Arrival). This tells Celery to execute this task no earlier than the time we calculated in `reminder_time`.
+
+.step(data-title="Overriding the Appointment save method", data-file="reminders/models.py", data-highlight="26-49", data-language="python")
+  :markdown
+    ## Overriding the Appointment save method
+
+    We can now schedule reminders for individual appointments using our `Appointment` model's new `schedule_reminder` method. Now we need Django to call that method every time an appointment is created or updated.
+
+    A best practice in Django for handling extra work when objects are created or updated is to [override a model's save method](https://docs.djangoproject.com/en/1.8/topics/db/models/#overriding-predefined-model-methods).
+
+    By adding a new `save` method on our `Appointment` model which invokes its `schedule_reminder` method, we ensure that a new Celery task will be scheduled every time an appointment is saved or updated.
+
+    **Avoiding duplicate or mistimed reminders**
+
+    Calling `self.schedule_reminder()` to schedule a Celery task every time an appointment is saved has an unfortunate side effect - our customers will receive multiple reminders for a single appointment if it was saved more than once. And those reminders might be sent at the wrong time if an appointment's `time` field was changed after it was first created.
+
+    To fix this we added a `task_id` field to our `Appointment` model, which we use to store the unique Celery identifier for each appointment's reminder task.
+
+    We then check at the top of our custom `save` method for a previously scheduled task and [revoke](http://celery.readthedocs.org/en/latest/faq.html#can-i-cancel-the-execution-of-a-task) it if present.
+
+    This guarantees that one and exactly one reminder will be sent for each appointment in our database, and that it will be sent at the most recent `time` provided for that appointment.
+
+.step(data-title="Finished", data-file="reminders/models.py", data-language="python")
+  :markdown
+    ## Finished
+
+    Our appointments project is now complete!
+
+    We used [Django's class-based views](https://docs.djangoproject.com/en/1.8/topics/class-based-views/) to help us quickly build out the features to support simple CRUD operations on our `Appointment` model.
+
+    We then integrated [Celery](http://www.celeryproject.org/) into our project and used the [twilio-python](https://github.com/twilio/twilio-python) helper library to send SMS reminders about our appointments asynchronously.
+
+    You'll find instructions to run this project locally in [its GitHub README](https://github.com/TwilioDevEd/appointment-reminders-django). You can also deploy this project to Heroku in moments by following instructions in the same place.
+
+    **Feedback**
+
+    We loved preparing this tutorial and we hope you enjoyed working through it.
+
+    Please let us know if it was helpful - or not - by dropping us a note at [help@twilio.com](mailto:help@twilio.com). Thank you!
