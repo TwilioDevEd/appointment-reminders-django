@@ -23,6 +23,15 @@ class Appointment(models.Model):
     def get_absolute_url(self):
         return reverse('view_appointment', args=[str(self.id)])
 
+    def schedule_reminder(self):
+        appointment_time = arrow.get(self.time)
+        reminder_time = appointment_time.replace(minutes=-settings.REMINDER_TIME - 1)
+
+        from .tasks import send_sms_reminder
+        result = send_sms_reminder.apply_async((self.pk,), eta=reminder_time)
+
+        return result
+
     def save(self, *args, **kwargs):
         # Check if we have scheduled a reminder for this appointment before
         if self.task_id:
@@ -38,12 +47,3 @@ class Appointment(models.Model):
 
         # Save our appointment again, with the new task_id
         super(Appointment, self).save(*args, **kwargs)
-
-    def schedule_reminder(self):
-        appointment_time = arrow.get(self.time)
-        reminder_time = appointment_time.replace(minutes=-settings.REMINDER_TIME - 1)
-
-        from .tasks import send_sms_reminder
-        result = send_sms_reminder.apply_async((self.pk,), eta=reminder_time)
-
-        return result
