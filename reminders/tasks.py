@@ -8,6 +8,7 @@ import arrow
 
 from .models import Appointment
 
+
 # Uses credentials from the TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN
 # environment variables
 client = TwilioRestClient()
