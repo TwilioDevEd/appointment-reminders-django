@@ -1,0 +1,44 @@
+.step(data-title='Sending the Reminder', data-file="reminders/tasks.py", data-language="python")
+  h2 Sending the Reminder
+  blockquote
+    | As an appointment system, I want to notify a customer via SMS an arbitrary interval before a future appointment.
+  :markdown
+    To satisfy this user story, we need to make our application work on its own outside of any individual user interaction - asynchronously.
+
+    The most popular Python library for asynchronous tasks is [Celery](http://www.celeryproject.org/). To integrate Celery with our application, we need to add a few new features:
+
+    - Create a new function that sends an SMS message using information from an `Appointment` object
+    - Register that function as a task with Celery so it can be executed asynchronously
+    - Run a separate Celery worker process alongside our Django application to call our SMS reminder function at the right time for each appointment
+
+    If you're brand new to Celery, you might want to skim its documentation's [Introduction to Celery](http://docs.celeryproject.org/en/latest/getting-started/introduction.html) page before proceeding.
+
+.step(data-title="Setting up Celery", data-file="appointments/settings/common.py", data-language="python", data-highlight="29-31")
+  :markdown
+    ## Setting up Celery
+
+    Integrating Celery with Django is simpler than it used to be.
+
+    [By following the instructions in the Celery docs](http://docs.celeryproject.org/en/latest/django/first-steps-with-django.html), we can include our Celery settings in our Django settings modules. We can also write our Celery tasks in `tasks.py` modules that live inside our Django apps, which keeps our project layout consistent and simple.
+
+    To use Celery, you also need a separate service to be your message broker. Your broker helps coordinate all your Celery workers to make sure the right work gets done at the right time.
+
+    The two officially supported Celery brokers are [RabbitMQ](http://docs.celeryproject.org/en/latest/getting-started/brokers/rabbitmq.html#broker-rabbitmq) and [Redis](http://docs.celeryproject.org/en/latest/getting-started/brokers/redis.html#broker-redis).
+
+    We used Redis in this project because it's a little easier to configure. When installing Celery via `pip`, you can instruct Celery to automatically download Python dependencies for your specific broker by including it in brackets:
+
+    ```
+    $ pip install celery[redis]==3.1.18
+    ```
+
+    The two Celery-specific settings in our `common.py` settings module are `BROKER_URL` and `BROKER_POOL_LIMIT`.
+
+    The `BROKER_URL` points to a Redis server running on localhost, and the `BROKER_POOL_LIMIT` limits how many connections Celery will make to our broker - useful when deploying to a Platform-as-a-Service (PaaS) like [Heroku](https://www.heroku.com/) where the free tiers of Redis services limit your application to a handful of connections.
+
+    If you want to see all the steps to get Django, Celery, Redis, and Postgres working on your machine [check out the README for this project on GitHub](https://github.com/TwilioDevEd/appointment-reminders-django).
+
+.step(data-title="Sending an SMS reminder", data-file="reminders/tasks.py", data-language="python")
+  :markdown
+    ## Sending an SMS reminder
+
+    Now that Celery is all set up, it's time to write a new task for sending our customer's SMS messages about their appointments.
