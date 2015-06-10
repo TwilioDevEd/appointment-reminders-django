@@ -14,6 +14,7 @@ class Appointment(models.Model):
     phone_number = models.CharField(max_length=15)
     time = models.DateTimeField()
 
+    # Additional fields not visible to users
     task_id = models.CharField(max_length=50, blank=True, editable=False)
     created = models.DateTimeField(auto_now_add=True)
 
@@ -24,15 +25,21 @@ class Appointment(models.Model):
         return reverse('view_appointment', args=[str(self.id)])
 
     def schedule_reminder(self):
+        """Schedules a Celery task to send a reminder about this appointment"""
+
+        # Calculate the correct time to send this reminder
         appointment_time = arrow.get(self.time)
         reminder_time = appointment_time.replace(minutes=-settings.REMINDER_TIME - 1)
 
+        # Schedule the Celery task
         from .tasks import send_sms_reminder
         result = send_sms_reminder.apply_async((self.pk,), eta=reminder_time)
 
         return result.id
 
     def save(self, *args, **kwargs):
+        """Custom save method which also schedules a reminder"""
+
         # Check if we have scheduled a reminder for this appointment before
         if self.task_id:
             # Revoke that task in case its time has changed
