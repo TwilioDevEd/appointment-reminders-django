@@ -8,6 +8,7 @@ from django.utils.encoding import python_2_unicode_compatible
 
 import arrow
 
+
 @python_2_unicode_compatible
 class Appointment(models.Model):
     name = models.CharField(max_length=150)
@@ -45,7 +46,8 @@ class Appointment(models.Model):
             # Revoke that task in case its time has changed
             celery_app.control.revoke(self.task_id)
 
-        # Save our appointment, which populates self.pk, used in schedule_reminder
+        # Save our appointment, which populates self.pk,
+        # which is used in schedule_reminder
         super(Appointment, self).save(*args, **kwargs)
 
         # Schedule a new reminder task for this appointment

@@ -12,6 +12,7 @@ if six.PY3:
 else:
     from mock import patch
 
+
 class AppointmentTest(TestCase):
 
     def test_str(self):
@@ -60,6 +61,7 @@ class AppointmentTest(TestCase):
 
         # Assert
         self.assertTrue(mock.called)
+
 
 class SendReminderTest(TestCase):
 
