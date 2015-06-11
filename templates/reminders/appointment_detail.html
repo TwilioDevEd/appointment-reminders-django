@@ -16,6 +16,8 @@
         <dd>{{ appointment.phone_number }}</dd>
         <dt><strong>Time:</strong></dt>
         <dd>{{ appointment.time }}</dd>
+        <dt><strong>Time zone:</strong></dt>
+        <dd>{{ appointment.time_zone }}</dd>
       </dl>
 
       <a class="btn btn-default" href="{% url 'list_appointments' %}">Back</a>
