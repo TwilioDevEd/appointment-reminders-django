@@ -49,3 +49,13 @@ This project uses [Celery](http://docs.celeryproject.org/en/latest/index.html) t
 1. Start the Celery worker with the command: `celery -A appointments.settings worker -l info`
 
 You can then visit the application at [http://localhost:8000/](http://localhost:8000/).
+
+## Run the tests
+
+You can run the tests locally through [coverage](http://coverage.readthedocs.org/en/coverage-3.7.1/#):
+
+```
+$ coverage run manage.py test --settings=appointments.settings.test
+```
+
+You can then view the results with `coverage report` or build an HTML report with `coverage html`.
