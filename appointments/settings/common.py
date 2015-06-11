@@ -33,9 +33,6 @@ BROKER_POOL_LIMIT = 8
 # Reminder time: how early text messages are sent in advance of appointments
 REMINDER_TIME = 30 # minutes
 
-# Time zone (replace with yours)
-TIME_ZONE = 'America/New_York'
-
 ALLOWED_HOSTS = []
 
 # Application definition
@@ -51,7 +48,8 @@ DJANGO_APPS = (
 
 THIRD_PARTY_APPS = (
     'bootstrap3',
-    'django_forms_bootstrap'
+    'django_forms_bootstrap',
+    'timezone_field'
 )
 
 LOCAL_APPS = (
@@ -109,6 +107,8 @@ DATABASES = {
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
+
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 

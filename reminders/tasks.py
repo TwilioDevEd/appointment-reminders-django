@@ -24,7 +24,7 @@ def send_sms_reminder(appointment_id):
         # has been deleted, so we don't need to do anything
         return
 
-    appointment_time = arrow.get(appointment.time)
+    appointment_time = arrow.get(appointment.time, appointment.time_zone.zone)
     body = 'Hi {0}. You have an appointment coming up {1}.'.format(
         appointment.name,
         appointment_time.humanize()

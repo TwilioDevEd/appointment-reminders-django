@@ -1,8 +1,11 @@
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from model_mommy import mommy
 
 from .models import Appointment
 from .tasks import send_sms_reminder
+
+import arrow
 
 # Import Mock if we're running on Python 2
 import six
@@ -30,6 +33,26 @@ class AppointmentTest(TestCase):
         # Assert
         self.assertEqual(appointment.get_absolute_url(),
             '/appointments/{0}'.format(appointment.pk))
+
+    def test_clean_invalid_appointment(self):
+        # Arrange
+        time_in_past = arrow.utcnow().replace(minutes=-10)
+        appointment = mommy.make(Appointment, time=time_in_past.datetime, time_zone='UTC')
+
+        # Assert
+        with self.assertRaises(ValidationError):
+            appointment.clean()
+
+    def test_clean_valid_appointment(self):
+        # Arrange
+        time_in_future = arrow.utcnow().replace(minutes=+10)
+        appointment = mommy.make(Appointment, time=time_in_future.datetime, time_zone='UTC')
+
+        # Assert
+        try:
+            appointment.clean()
+        except ValidationError:
+            self.fail('appointment with time in the past raised ValidationError')
 
     def test_schedule_reminder(self):
         # Arrange

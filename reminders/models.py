@@ -2,9 +2,11 @@ from __future__ import unicode_literals
 
 from appointments.settings import celery_app
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
+from timezone_field import TimeZoneField
 
 import arrow
 
@@ -14,6 +16,7 @@ class Appointment(models.Model):
     name = models.CharField(max_length=150)
     phone_number = models.CharField(max_length=15)
     time = models.DateTimeField()
+    time_zone = TimeZoneField(default='US/Pacific')
 
     # Additional fields not visible to users
     task_id = models.CharField(max_length=50, blank=True, editable=False)
@@ -25,11 +28,19 @@ class Appointment(models.Model):
     def get_absolute_url(self):
         return reverse('view_appointment', args=[str(self.id)])
 
+    def clean(self):
+        """Checks that appointments are not scheduled in the past"""
+
+        appointment_time = arrow.get(self.time, self.time_zone.zone)
+
+        if appointment_time < arrow.utcnow():
+            raise ValidationError('You cannot schedule an appointment for the past. Please check your time and time_zone')
+
     def schedule_reminder(self):
         """Schedules a Celery task to send a reminder about this appointment"""
 
         # Calculate the correct time to send this reminder
-        appointment_time = arrow.get(self.time)
+        appointment_time = arrow.get(self.time, self.time_zone.zone)
         reminder_time = appointment_time.replace(minutes=-settings.REMINDER_TIME - 1)
 
         # Schedule the Celery task
