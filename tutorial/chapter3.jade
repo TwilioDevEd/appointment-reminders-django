@@ -45,7 +45,7 @@
 
     The next step in our `send_sms_reminder` task is to compose the text of our SMS message.
 
-    We use the handy [arrow](http://crsmithdev.com/arrow/) library to humanize our appointment's time relative to the present. After that, we use the [twilio-python](https://github.com/twilio/twilio-python) library to send our message.
+    We use the handy [arrow](http://crsmithdev.com/arrow/) library to format our appointment's time. After that, we use the [twilio-python](https://github.com/twilio/twilio-python) library to send our message.
 
     We instantiate a Twilio REST client at the top of the module, which looks for `TWILIO_ACCOUNT_SID` and `TWILIO_AUTH_TOKEN` environment variables to authenticate itself. You can find the correct values for you in [your account dashboard](https://www.twilio.com/user/account/settings).
 
@@ -61,7 +61,7 @@
 
     Our method starts by using [arrow](http://crsmithdev.com/arrow/) again to build a new datetime with the appointment's `time` and `time_zone`.
 
-    Moving backward in time can be tricky in normal Python, but arrow's `.replace()` method lets us easily subtract minutes from our `appointment_time`. The `REMINDER_TIME` setting defaults to 30 minutes, and we subtract one more to give our SMS extra time for delivery.
+    Moving backward in time can be tricky in normal Python, but arrow's `.replace()` method lets us easily subtract minutes from our `appointment_time`. The `REMINDER_TIME` setting defaults to 30 minutes.
 
     We finish by invoking our Celery task, using the [eta](http://docs.celeryproject.org/en/latest/userguide/calling.html#eta-and-countdown) parameter to tell Celery when this task should execute.
 
