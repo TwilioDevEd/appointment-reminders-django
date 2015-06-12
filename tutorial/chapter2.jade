@@ -22,7 +22,7 @@
 
     All we need to do it point it at our `Appointment` model and it will handle building a QuerySet of all appointments for us.
 
-    And wiring up this view in our `urls.py` module is just as easy as our `AppointmentCreateView`:
+    And wiring up this view in our `reminders/urls.py` module is just as easy as our `AppointmentCreateView`:
 
     ```python
     from .views import AppointmentListView
@@ -46,25 +46,11 @@
 
     And now that our appointment listing requirement is complete, let's cover how to build those views next.
 
-.step(data-title="Updating an appointment", data-file="reminders/views.py", data-highlight="21-34", data-language="python")
-  :markdown
-    ## Updating an appointment
-
-    We'll keep using Django's generic class-based views to fill out our update and delete views.
-
-    Django's [UpdateView](https://docs.djangoproject.com/en/1.8/ref/class-based-views/generic-editing/#django.views.generic.edit.UpdateView) class uses the same properties as the CreateView class but expects an extra URL parameter, `pk`, which it uses to find the object we want to update in the database:
-
-    ```python
-    from .views import AppointmentUpdateView
-
-    url(r'^/(?P<pk>[0-9]+)/edit$', AppointmentUpdateView.as_view(), name='edit_appointment'),
-    ```
-
-    With a few tweaks, we can let this view use the same `appointment_form.html` template we built for our `AppointmentCreateView`. We'll look at those next.
-
 .step(data-title="Tweaking our form template", data-file="templates/reminders/appointment_form.html", data-highlight="44-57" data-language="htmlembedded")
   :markdown
     ## Tweaking our form template
+
+    Django's [UpdateView](https://docs.djangoproject.com/en/1.8/ref/class-based-views/generic-editing/#django.views.generic.edit.UpdateView) makes it easy to add a view for updating appointments. Our form template needs a few tweaks, though, to handle prepopulated data from an existing appointment.
 
     Django will store our datetimes precisely, down to the second, but we don't want to bother our users by forcing them to pick the precise second an appointment starts.
 
@@ -78,7 +64,7 @@
 
     [DeleteView](https://docs.djangoproject.com/en/1.8/ref/class-based-views/generic-editing/#django.views.generic.edit.DeleteView) is an especially handy view class. It shows users a confirmation page before deleting the specified object.
 
-    Like UpdateView, DeleteView finds the object to delete by using the `pk` parameter in its URL:
+    Like UpdateView, DeleteView finds the object to delete by using the `pk` parameter in its URL, declared in `reminders/urls.py`:
 
     ```python
     from .views import AppointmentDeleteView

@@ -33,6 +33,7 @@
     In addition to Celery, we will use a few other Python libraries to make our task easier:
 
     - The [twilio-python](https://github.com/twilio/twilio-python) Python helper library
+    - [django-timezone-field](https://github.com/mfogel/django-timezone-field) to give us a model field for storing time zones
     - [django-bootstrap3](https://github.com/dyve/django-bootstrap3) and [django-forms-bootstrap](https://github.com/pinax/django-forms-bootstrap) to make our form templates simpler and prettier
     - The fantastic [arrow](http://crsmithdev.com/arrow/) library to make our datetime math foolproof
 
@@ -55,16 +56,15 @@
 
     Let's start by looking at the model.
 
-.step(data-title='The Appointment model', data-file="reminders/models.py", data-highlight='12-23', data-language="python")
+.step(data-title='The Appointment model', data-file="reminders/models.py", data-highlight='14-26', data-language="python")
   :markdown
     ## The Appointment Model
 
-    We only need to store three pieces of data about each appointment to send a reminder:
+    We only need to store four pieces of data about each appointment to send a reminder:
     - The customer's name
     - Their phone number
     - The date and time of their appointment
-
-    That translates into a pretty simple Django model. The `name` and `phone_number` fields are [CharFields](https://docs.djangoproject.com/en/1.8/ref/models/fields/#charfield) and the `time` field is a [DateTime](https://docs.djangoproject.com/en/1.8/ref/models/fields/#datetimefield) field.
+    - The time zone of the appointment
 
     We also included two additional fields: `task_id` and `created`. The `task_id` field will help us keep track of the corresponding reminder task for this appointment. The `created` field is just a timestamp populated when an appointment is created.
 
@@ -77,38 +77,6 @@
     This decorator tells Django to use our model's `__str__` method to make a `__unicode__` method when needed for Python 2.
 
     You can read more about it in the [Porting to Python 3](https://docs.djangoproject.com/en/1.8/topics/python3/#str-and-unicode-methods) section of the Django documentation.
-
-.step(data-title='Migrations and the Django Admin', data-file='reminders/admin.py', data-language="python")
-  :markdown
-    ## Migrations and the Django admin
-
-    To create a table for our new model in our Postgres database, we need to make a [migration](https://docs.djangoproject.com/en/1.8/topics/migrations/).
-
-    Our `Appointment` model lives in an app we called `reminders`, so the `manage.py` command is:
-
-    ```
-    $ python manage.py makemigrations reminders
-    ```
-
-    To apply the migration, first make sure your local Postgres database is running ([Postgres.app](http://postgresapp.com/) is an easy way to run Postgres on a Mac). Then run:
-
-    ```
-    $ python manage.py migrate
-    ```
-
-    **The Django admin**
-
-    Django's built-in admin is a convenient tool for playing with newly declared models.
-
-    To wire up our `Appointment` model to use the Django admin, just add this simple `admin.py` module alongside your `models.py`.
-
-    Before you can log in to the Django admin, you need to create a superuser for yourself. You can do that with:
-
-    ```
-    $ python manage.py createsuperuser
-    ```
-
-    Now if you start your development server with `python manage.py runserver`, you can create and update new `Appointment` objects through the `/admin` interface.
 
 .step(data-title='New appointment view', data-file="reminders/views.py", data-highlight='21-26', data-language="python")
   :markdown
@@ -136,19 +104,9 @@
 
     Now that we have a view to create new appointments, we need to add a new URL to our URL dispatcher so users can get to it.
 
-    First, we'll add an entry in our Django project's root `urls.py` module to map all requests to URLs that start with `appointments` to the `urls.py` module in the `reminders` app directory:
+    To satisfy the appointment creation user story, we'll create a new URL at `/new` and point it to our `AppointmentCreateView`.
 
-    ```python
-    from django.conf.urls import include
-
-    url(r'^appointments', include('reminders.urls')),
-    ```
-
-    Then we can add a URL for creating new appointments to our `reminders/urls.py` module.
-
-    To satisfy the appointment creation user story, we'll create a new URL at `/new`.
-
-    We can connect that URL with our view by importing `AppointmentCreateView` from our `views` module and passing it as the second parameter of our URL declaration with `AppointmentCreateView.as_view()`.
+    Because we're using a class-based view, we pass our view to our URL with the `.as_view()` method instead of just using the view's name.
 
 .step(data-title='New appointment form', data-file='templates/reminders/appointment_form.html', data-language='htmlembedded')
   :markdown
@@ -172,13 +130,7 @@
 
     In this case, [bootstrap-datetimepicker](https://eonasdan.github.io/bootstrap-datetimepicker/) is a good fit. We include the necessary CSS and JS files from content delivery networks and then add a little custom JavaScript to initialize the widget on the form input for our time field.
 
-    **A note on time zones**
-
-    Our appointment reminders project assumes that users are creating appointments in the same time zone as the customers who will receive the reminders.
-
-    You can specify that time zone in `settings/common.py` with the `TIME_ZONE` variable. [You can read more about Django's time zone support in the official docs.](https://docs.djangoproject.com/en/1.8/topics/i18n/timezones/)
-
-.step(data-title='Adding a get_absolute_url method', data-file='reminders/models.py', data-highlight='12-26', data-language='python')
+.step(data-title='Adding a get_absolute_url method', data-file='reminders/models.py', data-highlight='14-29', data-language='python')
   :markdown
     ## Adding a get_absolute_url method
 

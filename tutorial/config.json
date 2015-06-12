@@ -2,5 +2,5 @@
     "title": "Appointment Reminders",
     "description": "Learn to implement appointment reminders in your web app with Twilio. Appointment reminders allow you to automate the process of reaching out to your customers in advance of an upcoming appointment.",
     "repo": "TwilioDevEd/appointment-reminders-django",
-    "heroku": true
+    "heroku": false
 }
