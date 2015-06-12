@@ -41,7 +41,7 @@ class Appointment(models.Model):
 
         # Calculate the correct time to send this reminder
         appointment_time = arrow.get(self.time, self.time_zone.zone)
-        reminder_time = appointment_time.replace(minutes=-settings.REMINDER_TIME - 1)
+        reminder_time = appointment_time.replace(minutes=-settings.REMINDER_TIME)
 
         # Schedule the Celery task
         from .tasks import send_sms_reminder
