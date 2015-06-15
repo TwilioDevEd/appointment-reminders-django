@@ -24,12 +24,12 @@
 
     And wiring up this view in our `reminders/urls.py` module is just as easy as our `AppointmentCreateView`:
 
-    ```python
-    from .views import AppointmentListView
+  pre
+    | from .views import AppointmentListView
+    | 
+    | url(r'^$', AppointmentListView.as_view(), name='list_appointments'),
 
-    url(r'^$', AppointmentListView.as_view(), name='list_appointments'),
-    ```
-
+  :markdown
     If we name our template file `appointment_list.html` our `AppointmentListView` will find it automatically. Let's check it out next.
 
 .step(data-title="Appointment list template", data-file="templates/reminders/appointment_list.html", data-language="htmlembedded")
@@ -66,12 +66,12 @@
 
     Like UpdateView, DeleteView finds the object to delete by using the `pk` parameter in its URL, declared in `reminders/urls.py`:
 
-    ```python
-    from .views import AppointmentDeleteView
+  pre
+    | from .views import AppointmentDeleteView
+    | 
+    | url(r'^/(?P<pk>[0-9]+)/delete$', AppointmentDeleteView.as_view(), name='delete_appointment'),
 
-    url(r'^/(?P<pk>[0-9]+)/delete$', AppointmentDeleteView.as_view(), name='delete_appointment'),
-    ```
-
+  :markdown
     We also need to specify a `success_url` property on our view class. This property tells Django where to send users after a successful deletion. In our case, we'll send them back to the list of appointments at the URL named `list_appointments`.
 
     When a Django project starts running, it evaluates views before URLs, so we need to use the [reverse_lazy](https://docs.djangoproject.com/en/1.8/ref/urlresolvers/#reverse-lazy) utility function to get our appointment list URL instead of `reverse`.

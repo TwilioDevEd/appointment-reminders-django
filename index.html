@@ -102,11 +102,9 @@ As a user, I want to view a list of all future appointments, and be able to edit
 <p>Django&#39;s <a href="https://docs.djangoproject.com/en/1.8/ref/class-based-views/generic-display/#listview">ListView</a> class was born for this.</p>
 <p>All we need to do it point it at our <code>Appointment</code> model and it will handle building a QuerySet of all appointments for us.</p>
 <p>And wiring up this view in our <code>reminders/urls.py</code> module is just as easy as our <code>AppointmentCreateView</code>:</p>
-<pre><code class="cm-s-monokai lang-python"><span class="cm-keyword">from</span> .<span class="cm-variable">views</span> <span class="cm-keyword">import</span> <span class="cm-variable">AppointmentListView</span>
-
-<span class="cm-variable">url</span>(<span class="cm-string">r&#39;^$&#39;</span>, <span class="cm-variable">AppointmentListView</span>.<span class="cm-variable">as_view</span>(), <span class="cm-variable">name</span>=<span class="cm-string">&#39;list_appointments&#39;</span>),
-</code></pre>
-<p>If we name our template file <code>appointment_list.html</code> our <code>AppointmentListView</code> will find it automatically. Let&#39;s check it out next.</p>
+<pre>from .views import AppointmentListView
+ 
+url(r'^$', AppointmentListView.as_view(), name='list_appointments'),</pre><p>If we name our template file <code>appointment_list.html</code> our <code>AppointmentListView</code> will find it automatically. Let&#39;s check it out next.</p>
 </div><div data-title="Appointment list template" data-file="templates/reminders/appointment_list.html" data-language="htmlembedded" class="step"><h2 id="appointment-list-template">Appointment list template</h2>
 <p>Our <code>AppointmentListView</code> passes its list of appointment objects to our template in the <code>object_list</code> variable.</p>
 <p>If that variable is empty, we include a <code>&lt;p&gt;</code> tag saying there are no upcoming appointments.</p>
@@ -121,11 +119,9 @@ As a user, I want to view a list of all future appointments, and be able to edit
 </div><div data-title="Delete view" data-file="reminders/views.py" data-language="python" class="step"><h2 id="delete-view">Delete view</h2>
 <p><a href="https://docs.djangoproject.com/en/1.8/ref/class-based-views/generic-editing/#django.views.generic.edit.DeleteView">DeleteView</a> is an especially handy view class. It shows users a confirmation page before deleting the specified object.</p>
 <p>Like UpdateView, DeleteView finds the object to delete by using the <code>pk</code> parameter in its URL, declared in <code>reminders/urls.py</code>:</p>
-<pre><code class="cm-s-monokai lang-python"><span class="cm-keyword">from</span> .<span class="cm-variable">views</span> <span class="cm-keyword">import</span> <span class="cm-variable">AppointmentDeleteView</span>
-
-<span class="cm-variable">url</span>(<span class="cm-string">r&#39;^/(?P&lt;pk&gt;[0-9]+)/delete$&#39;</span>, <span class="cm-variable">AppointmentDeleteView</span>.<span class="cm-variable">as_view</span>(), <span class="cm-variable">name</span>=<span class="cm-string">&#39;delete_appointment&#39;</span>),
-</code></pre>
-<p>We also need to specify a <code>success_url</code> property on our view class. This property tells Django where to send users after a successful deletion. In our case, we&#39;ll send them back to the list of appointments at the URL named <code>list_appointments</code>.</p>
+<pre>from .views import AppointmentDeleteView
+ 
+url(r'^/(?P<pk>[0-9]+)/delete$', AppointmentDeleteView.as_view(), name='delete_appointment'),</pre><p>We also need to specify a <code>success_url</code> property on our view class. This property tells Django where to send users after a successful deletion. In our case, we&#39;ll send them back to the list of appointments at the URL named <code>list_appointments</code>.</p>
 <p>When a Django project starts running, it evaluates views before URLs, so we need to use the <a href="https://docs.djangoproject.com/en/1.8/ref/urlresolvers/#reverse-lazy">reverse_lazy</a> utility function to get our appointment list URL instead of <code>reverse</code>.</p>
 <p>By default, our <code>AppointmentDeleteView</code> will look for a template named <code>appointment_confirm_delete.html</code>. You can check out ours in the <code>templates/reminders</code> directory.</p>
 <p>And that closes out this user story.</p>
