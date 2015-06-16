@@ -1,5 +1,7 @@
 # Appointment Reminders (Django)
 
+[![Build Status](https://travis-ci.org/atbaker/appointment-reminders-django.svg?branch=master)](https://travis-ci.org/atbaker/appointment-reminders-django)
+
 Use Twilio to create automatic appointment reminders for your business's clients.
 
 ## Quickstart
