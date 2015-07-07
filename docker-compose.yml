@@ -1,0 +1,34 @@
+# docker-compose configuration file for appointment-reminders-django
+
+web:
+  build: .
+  ports:
+    - "8000:8000"
+  volumes:
+    - .:/usr/src/app
+  links:
+    - postgres
+    - redis
+  environment:
+    - TWILIO_ACCOUNT_SID
+    - TWILIO_AUTH_TOKEN
+    - TWILIO_NUMBER
+
+celery:
+  build: .
+  command: "celery -A appointments.settings worker --loglevel=info"
+  volumes:
+    - .:/usr/src/app
+  links:
+    - postgres
+    - redis
+  environment:
+    - TWILIO_ACCOUNT_SID
+    - TWILIO_AUTH_TOKEN
+    - TWILIO_NUMBER
+
+postgres:
+  image: postgres:9.4
+
+redis:
+  image: redis:2
