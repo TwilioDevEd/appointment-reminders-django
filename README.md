@@ -73,6 +73,8 @@ $ docker-compose run web python manage.py migrate
 
 You can then visit the application at [http://localhost:8000/](http://localhost:8000/). If you're using [boot2docker](https://docs.docker.com/installation/mac/) to run Docker on OS X, you'll need to use the value of `boot2docker ip` instead of `localhost`.
 
+To stop your containers, run `docker-compose stop`.
+
 ## Run the tests
 
 You can run the tests locally through [coverage](http://coverage.readthedocs.org/en/coverage-3.7.1/#):
