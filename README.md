@@ -6,6 +6,8 @@ Use Twilio to create automatic appointment reminders for your business's clients
 
 ## Quickstart
 
+You can run this project yourself by [deploying it to Heroku](#heroku), [running it locally natively](#native-local-development), or [running it locally with Docker](#docker-local-development).
+
 ### Heroku
 
 This project is preconfigured to run on [Heroku](https://www.heroku.com/). Deploy it now:
@@ -24,7 +26,7 @@ Now you're all set.
 
 To view your app, click the **...** menu in the top right corner and select **Open app**.
 
-### Local development
+### Native local development
 
 This project is built using the [Django](https://www.djangoproject.com/) web framework. It runs on Python 2.7+ and Python 3.4+.
 
@@ -51,6 +53,25 @@ This project uses [Celery](http://docs.celeryproject.org/en/latest/index.html) t
 1. Start the Celery worker with the command: `celery -A appointments.settings worker -l info`
 
 You can then visit the application at [http://localhost:8000/](http://localhost:8000/).
+
+### Docker local development
+
+First, install [Docker](https://www.docker.com/) and [docker-compose](https://docs.docker.com/compose/install/).
+
+Then set the following environment variables in your terminal session. You can find these values at https://www.twilio.com/user/account/voice.
+
+- `TWILIO_NUMBER`
+- `TWILIO_ACCOUNT_SID`
+- `TWILIO_AUTH_TOKEN`
+
+Finally, run the following commands to start your Docker containers:
+
+```
+$ docker-compose up -d
+$ docker-compose run web python manage.py migrate
+```
+
+You can then visit the application at [http://localhost:8000/](http://localhost:8000/). If you're using [boot2docker](https://docs.docker.com/installation/mac/) to run Docker on OS X, you'll need to use the value of `boot2docker ip` instead of `localhost`.
 
 ## Run the tests
 
