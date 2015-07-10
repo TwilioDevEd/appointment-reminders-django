@@ -18,6 +18,10 @@ RUN python manage.py collectstatic --noinput
 # Set the C_FORCE_ROOT environment variable for the Celery process
 ENV C_FORCE_ROOT true
 
+# Expose port 8000 by default
 EXPOSE 8000
+
+# Set our dependencies as a label for now
+LABEL com.twilio.dependencies="[\"postgres\", \"redis\", \"celery\"]"
 
 CMD ["gunicorn", "appointments.wsgi:application", "--bind", "0.0.0.0:8000", "--log-file", "-"]
