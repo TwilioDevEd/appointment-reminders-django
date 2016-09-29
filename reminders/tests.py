@@ -80,7 +80,7 @@ class AppointmentTest(TestCase):
 
         # Act
         with patch('appointments.settings.celery_app.control.revoke') as mock:
-            appointment.save()     
+            appointment.save()
 
         # Assert
         self.assertTrue(mock.called)
@@ -93,7 +93,7 @@ class SendReminderTest(TestCase):
         appointment = mommy.make(Appointment)
 
         # Act
-        with patch('twilio.rest.resources.messages.Messages.create') as mock:
+        with patch('twilio.rest.api.v2010.account.message.MessageList.create') as mock:
             send_sms_reminder(appointment.pk)
 
         # Assert
@@ -105,7 +105,7 @@ class SendReminderTest(TestCase):
         appointment.delete()
 
         # Act
-        with patch('twilio.rest.resources.messages.Messages.create') as mock:
+        with patch('twilio.rest.api.v2010.account.message.MessageList.create') as mock:
             send_sms_reminder(appointment.pk)
 
         # Assert
