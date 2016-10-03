@@ -10,7 +10,7 @@ django-bootstrap3==5.4.0
 django-forms-bootstrap==3.0.1
 django-timezone-field==1.2
 psycopg2==2.6
-twilio==4.4.0
+twilio==6.0.0rc12
 whitenoise==1.0.6
 
 # Production dependencies
