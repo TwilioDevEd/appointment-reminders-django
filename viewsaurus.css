@@ -497,7 +497,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 10;
+  z-index: 3;
   padding: 0 10px;
   overflow-y: auto;
 }
@@ -554,32 +554,25 @@
   border-radius: 3px;
 }
 #viewsaurus .saurus-prose .saurus-overview ul {
-  margin: 0 0 0 10px;
+  margin: 10px 0 0 10px;
   padding: 0;
 }
 #viewsaurus .saurus-prose .saurus-overview ul li {
-  list-style: none;
-  margin: 5px;
-  color: #daddd6;
-}
-#viewsaurus .saurus-prose .saurus-overview ul li span {
-  display: block;
-  width: 100%;
-}
-#viewsaurus .saurus-prose .saurus-overview ul ul li {
   padding: 5px;
-  margin: 5px;
-  font-size: 14px;
+  margin: 0 10px 10px 0;
+  font-size: 16px;
   list-style: none;
+  font-weight: bold;
 }
-#viewsaurus .saurus-prose .saurus-overview ul ul li a,
-#viewsaurus .saurus-prose .saurus-overview ul ul li a:visited {
+#viewsaurus .saurus-prose .saurus-overview ul li a,
+#viewsaurus .saurus-prose .saurus-overview ul li a:visited {
   display: block;
   width: 100%;
   color: #71bbba;
   text-decoration: none;
+  font-weight: normal;
 }
-#viewsaurus .saurus-prose .saurus-overview ul ul li a:hover {
+#viewsaurus .saurus-prose .saurus-overview ul li a:hover {
   text-decoration: underline;
 }
 #viewsaurus .saurus-prose .saurus-prose-header {
@@ -845,6 +838,9 @@
   color: rgba(100, 100, 100, 0.2) !important;
   text-shadow: 0 0 3px #c1c6ba;
 }
+#viewsaurus .saurus-code .ace_scrollbar {
+  z-index: 4 !important;
+}
 #viewsaurus .saurus-explorer {
   position: absolute;
   top: 0;
@@ -854,7 +850,7 @@
   background-color: #231f20;
   color: #daddd6;
   overflow-y: auto;
-  overflow-x: auto;
+  overflow-x: hidden;
   font-size: 14px !important;
 }
 #viewsaurus .saurus-explorer .saurus-file-list .current {
@@ -884,4 +880,13 @@
 }
 #viewsaurus .saurus-explorer .saurus-file-list ul li[data-file]:hover:not(.current) {
   color: #ffffff;
+}
+#viewsaurus .saurus-explorer a.explorer-get-code {
+  margin: 30px 10px;
+  display: block;
+  color: white;
+  font-style: italic;
+}
+#viewsaurus .saurus-explorer a.explorer-get-code i {
+  margin-right: 5px;
 }

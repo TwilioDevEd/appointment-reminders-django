@@ -275,8 +275,14 @@ var autoShowExplorer = 1280;
 
 // Helper to generate an HTML string for a leaf file in the explorer
 function createFileListItem(fileName, fullPath) {
+    // create truncated file name
+    var truncFileName = fileName;
+    if (truncFileName.length > 30) {
+        truncFileName = '...' + fileName.substring(fileName.length-30);
+    }
     var html = '<li class="saurus-explorer-file" data-file="' + fullPath + '">';
-    html += '<i class="fa fa-fw fa-file-text-o"></i>&nbsp;' + fileName + '</li>';
+    html += '<i class="fa fa-fw fa-file-text-o"></i>&nbsp;' 
+        + truncFileName + '</li>';
     return html;
 }
 
@@ -355,7 +361,7 @@ var ExplorerView = Backbone.View.extend({
         for (var folder in folders) {
             html += '<li class="saurus-explorer-folder">';
             html += '<i class="fa fa-fw fa-folder-o"></i>';
-            html += '&nbsp;' + folder + '<ul>'
+            html += '&nbsp;' + folder + '<ul>';
             var files = folders[folder];
             for (var i = 0, l = files.length; i<l; i++) {
                 var fileData = files[i];
@@ -412,6 +418,13 @@ var ExplorerView = Backbone.View.extend({
 
 module.exports = ExplorerView;
 },{}],6:[function(require,module,exports){
+// Get Title for a step either from a data attribute or the first title tag
+function titleForStep($e) {
+    var title = $e.attr('data-title');
+    if (!title) title = $e.find('h1, h2, h3, h4, h5').first().text();
+    return title;
+}
+
 // Represent UI state for prose view
 var ProseModel = Backbone.Model.extend({
     defaults: {
@@ -511,7 +524,7 @@ var ProseView = Backbone.View.extend({
         var text = "You did it! Good for you :)";
         if (index < self.app.totalSteps) {
             var $next = self.$content.find('.step').eq(index);
-            var truncated = $next.attr('data-title').substring(0,35);
+            var truncated = titleForStep($next).substring(0,35);
             if (truncated.length > 34) {
                 truncated += '...';
             }
@@ -552,7 +565,7 @@ var ProseView = Backbone.View.extend({
         self.$content.scrollTop(0);
 
         // Update section title
-        self.$title.html($step.attr('data-title'));
+        // self.$title.html($step.attr('data-title'));
 
         // Update current link in overview
         self.$overviewList.find('li').removeClass('current');
@@ -624,7 +637,7 @@ var ProseView = Backbone.View.extend({
             } else {
                 html += '<li data-step="' + stepIndex + '">';
                 html += '<a href="#' + stepIndex + '">';
-                html += $thing.attr('data-title') + '</a></li>';
+                html += titleForStep($thing) + '</a></li>';
                 stepIndex++;
             }
         });
