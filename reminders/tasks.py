@@ -1,19 +1,20 @@
 from __future__ import absolute_import
 
-from celery import shared_task
+import arrow
+import dramatiq
+
 from django.conf import settings
 from twilio.rest import Client
-
-import arrow
 
 from .models import Appointment
 
 
 # Uses credentials from the TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN
 # environment variables
-client = Client()
+client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
 
-@shared_task
+
+@dramatiq.actor
 def send_sms_reminder(appointment_id):
     """Send a reminder to a phone using Twilio SMS"""
     # Get our appointment from the database
@@ -30,7 +31,7 @@ def send_sms_reminder(appointment_id):
         appointment_time.format('h:mm a')
     )
 
-    message = client.messages.create(
+    client.messages.create(
         body=body,
         to=appointment.phone_number,
         from_=settings.TWILIO_NUMBER,

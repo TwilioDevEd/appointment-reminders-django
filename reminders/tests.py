@@ -2,8 +2,8 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 from model_mommy import mommy
 
-from .models import Appointment
-from .tasks import send_sms_reminder
+from reminders.models import Appointment
+from reminders.tasks import send_sms_reminder
 
 import arrow
 
