@@ -1,11 +1,12 @@
 from django.conf.urls import re_path
 
-from .views import AppointmentCreateView
-from .views import AppointmentDeleteView
-from .views import AppointmentDetailView
-from .views import AppointmentListView
-from .views import AppointmentUpdateView
-
+from .views import (
+    AppointmentCreateView,
+    AppointmentDeleteView,
+    AppointmentDetailView,
+    AppointmentListView,
+    AppointmentUpdateView,
+)
 
 urlpatterns = [
     # List and detail views

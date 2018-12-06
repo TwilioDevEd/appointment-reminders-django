@@ -56,10 +56,6 @@ class Appointment(models.Model):
 
         return result.options['redis_message_id']
 
-    def cancel_task(self):
-        redis_client = redis.Redis(host='localhost', port=6379, db=0)
-        redis_client.hdel("dramatiq:default.DQ.msgs", self.task_id)
-
     def save(self, *args, **kwargs):
         """Custom save method which also schedules a reminder"""
 
@@ -77,3 +73,7 @@ class Appointment(models.Model):
 
         # Save our appointment again, with the new task_id
         super(Appointment, self).save(*args, **kwargs)
+
+    def cancel_task(self):
+        redis_client = redis.Redis(host='localhost', port=6379, db=0)
+        redis_client.hdel("dramatiq:default.DQ.msgs", self.task_id)
