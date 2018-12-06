@@ -83,11 +83,11 @@ class AppointmentTest(TestCase):
         appointment = mommy.make(Appointment)
 
         # Act
-        with patch('redis.Redis') as mock_redis_conn:
+        with patch('reminders.models.Appointment.cancel_task') as mock:
             appointment.save()
 
         # Assert
-        self.assertTrue(mock_redis_conn.called)
+        self.assertTrue(mock.called)
 
 
 class SendReminderTest(TestCase):
