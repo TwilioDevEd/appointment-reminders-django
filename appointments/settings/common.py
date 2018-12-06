@@ -21,21 +21,15 @@ DEBUG = False
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'not-so-secret'
 
-# Most important settings
-
 # Twilio API
 TWILIO_NUMBER = os.environ.get('TWILIO_NUMBER')
 TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')
 
-# Address of Redis instance, our Dramatiq broker
-BROKER_URL = 'redis://localhost:6379/0'
-BROKER_POOL_LIMIT = 8
-
 DRAMATIQ_BROKER = {
     "BROKER": "dramatiq.brokers.redis.RedisBroker",
     "OPTIONS": {
-        "url": BROKER_URL,
+        "url": 'redis://localhost:6379/0',
     },
     "MIDDLEWARE": [
         "dramatiq.middleware.Prometheus",
@@ -47,11 +41,6 @@ DRAMATIQ_BROKER = {
         "django_dramatiq.middleware.DbConnectionsMiddleware",
     ]
 }
-
-# Defines which database should be used to persist Task objects when the
-# AdminMiddleware is enabled.  The default value is "default".
-DRAMATIQ_TASKS_DATABASE = "default"
-
 
 # Reminder time: how early text messages are sent in advance of appointments
 REMINDER_TIME = 30  # minutes
