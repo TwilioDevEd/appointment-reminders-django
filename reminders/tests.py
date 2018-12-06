@@ -23,21 +23,23 @@ class AppointmentTest(TestCase):
         appointment = mommy.make(Appointment, name='John')
 
         # Assert
-        self.assertEqual(str(appointment), 'Appointment #{0} - {1}'
-            .format(appointment.pk, appointment.name))
+        self.assertEqual(
+            str(appointment),
+            'Appointment #{0} - {1}'.format(appointment.pk, appointment.name))
 
     def test_get_absolute_url(self):
         # Arrange
         appointment = mommy.make(Appointment)
 
         # Assert
-        self.assertEqual(appointment.get_absolute_url(),
+        self.assertEqual(
+            appointment.get_absolute_url(),
             '/appointments/{0}'.format(appointment.pk))
 
     def test_clean_invalid_appointment(self):
         # Arrange
         time_in_past = arrow.utcnow().replace(minutes=-10)
-        appointment = mommy.make(Appointment, time=time_in_past.datetime, time_zone='UTC')
+        appointment = mommy.make(Appointment, time=time_in_past.datetime)
 
         # Assert
         with self.assertRaises(ValidationError):
@@ -46,20 +48,21 @@ class AppointmentTest(TestCase):
     def test_clean_valid_appointment(self):
         # Arrange
         time_in_future = arrow.utcnow().replace(minutes=+10)
-        appointment = mommy.make(Appointment, time=time_in_future.datetime, time_zone='UTC')
+        appointment = mommy.make(Appointment, time=time_in_future.datetime)
 
         # Assert
         try:
             appointment.clean()
         except ValidationError:
-            self.fail('appointment with time in the past raised ValidationError')
+            self.fail(
+                'appointment with time in the past raised ValidationError')
 
     def test_schedule_reminder(self):
         # Arrange
         appointment = mommy.make(Appointment)
 
         # Act
-        with patch.object(send_sms_reminder, 'apply_async') as mock:
+        with patch.object(send_sms_reminder, 'send_with_options') as mock:
             appointment.schedule_reminder()
 
         # Assert
@@ -67,7 +70,8 @@ class AppointmentTest(TestCase):
 
     def test_save_initial_creation(self):
         # Act
-        with patch.object(Appointment, 'schedule_reminder', return_value=123) as mock:
+        with patch.object(
+                Appointment, 'schedule_reminder', return_value=123) as mock:
             appointment = mommy.make(Appointment)
 
         # Assert
@@ -79,11 +83,11 @@ class AppointmentTest(TestCase):
         appointment = mommy.make(Appointment)
 
         # Act
-        with patch('appointments.settings.celery_app.control.revoke') as mock:
+        with patch('redis.Redis') as mock_redis_conn:
             appointment.save()
 
         # Assert
-        self.assertTrue(mock.called)
+        self.assertTrue(mock_redis_conn.called)
 
 
 class SendReminderTest(TestCase):

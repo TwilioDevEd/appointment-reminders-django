@@ -28,7 +28,7 @@ TWILIO_NUMBER = os.environ.get('TWILIO_NUMBER')
 TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')
 
-# Address of Redis instance, our Celery broker
+# Address of Redis instance, our Dramatiq broker
 BROKER_URL = 'redis://localhost:6379/0'
 BROKER_POOL_LIMIT = 8
 

@@ -16,7 +16,7 @@ class Appointment(models.Model):
     name = models.CharField(max_length=150)
     phone_number = models.CharField(max_length=15)
     time = models.DateTimeField()
-    time_zone = TimeZoneField(default='US/Pacific')
+    time_zone = TimeZoneField(default='UTC')
 
     # Additional fields not visible to users
     task_id = models.CharField(max_length=50, blank=True, editable=False)
@@ -39,7 +39,7 @@ class Appointment(models.Model):
                 'Please check your time and time_zone')
 
     def schedule_reminder(self):
-        """Schedules a Celery task to send a reminder about this appointment"""
+        """Schedule a Dramatiq task to send a reminder for this appointment"""
 
         # Calculate the correct time to send this reminder
         appointment_time = arrow.get(self.time, self.time_zone.zone)
