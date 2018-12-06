@@ -10,7 +10,7 @@ Use Twilio to create automatic appointment reminders for your business's clients
 
 ### Local development
 
-This project is built using the [Django](https://www.djangoproject.com/) web framework. It runs on Python 2.7+ and Python 3.4+.
+This project is built using the [Django](https://www.djangoproject.com/) web framework. It runs on Python 3.6+.
 
 To run the app locally, first clone this repository and `cd` into its directory. Then:
 
