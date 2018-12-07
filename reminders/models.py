@@ -1,10 +1,10 @@
 from __future__ import unicode_literals
 
-from appointments.settings import celery_app
-from django.conf import settings
+import redis
+
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
 from django.db import models
+from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from timezone_field import TimeZoneField
 
@@ -16,7 +16,7 @@ class Appointment(models.Model):
     name = models.CharField(max_length=150)
     phone_number = models.CharField(max_length=15)
     time = models.DateTimeField()
-    time_zone = TimeZoneField(default='US/Pacific')
+    time_zone = TimeZoneField(default='UTC')
 
     # Additional fields not visible to users
     task_id = models.CharField(max_length=50, blank=True, editable=False)
@@ -34,20 +34,27 @@ class Appointment(models.Model):
         appointment_time = arrow.get(self.time, self.time_zone.zone)
 
         if appointment_time < arrow.utcnow():
-            raise ValidationError('You cannot schedule an appointment for the past. Please check your time and time_zone')
+            raise ValidationError(
+                'You cannot schedule an appointment for the past. '
+                'Please check your time and time_zone')
 
     def schedule_reminder(self):
-        """Schedules a Celery task to send a reminder about this appointment"""
+        """Schedule a Dramatiq task to send a reminder for this appointment"""
 
         # Calculate the correct time to send this reminder
         appointment_time = arrow.get(self.time, self.time_zone.zone)
-        reminder_time = appointment_time.replace(minutes=-settings.REMINDER_TIME)
+        reminder_time = appointment_time.shift(minutes=-30)
+        now = arrow.now(self.time_zone.zone)
+        milli_to_wait = int(
+            (reminder_time - now).total_seconds()) * 1000
 
-        # Schedule the Celery task
+        # Schedule the Dramatiq task
         from .tasks import send_sms_reminder
-        result = send_sms_reminder.apply_async((self.pk,), eta=reminder_time)
+        result = send_sms_reminder.send_with_options(
+            args=(self.pk,),
+            delay=milli_to_wait)
 
-        return result.id
+        return result.options['redis_message_id']
 
     def save(self, *args, **kwargs):
         """Custom save method which also schedules a reminder"""
@@ -55,7 +62,7 @@ class Appointment(models.Model):
         # Check if we have scheduled a reminder for this appointment before
         if self.task_id:
             # Revoke that task in case its time has changed
-            celery_app.control.revoke(self.task_id)
+            self.cancel_task()
 
         # Save our appointment, which populates self.pk,
         # which is used in schedule_reminder
@@ -66,3 +73,7 @@ class Appointment(models.Model):
 
         # Save our appointment again, with the new task_id
         super(Appointment, self).save(*args, **kwargs)
+
+    def cancel_task(self):
+        redis_client = redis.Redis(host='localhost', port=6379, db=0)
+        redis_client.hdel("dramatiq:default.DQ.msgs", self.task_id)

@@ -1,9 +1,9 @@
 {
   "name": "Appointment Reminders (Django)",
   "description": "Appointment Reminders in Django with Twilio",
-  "repository": "https://github.com/atbaker/appointment-reminders-django",
+  "repository": "https://github.com/TwilioDevEd/appointment-reminders-django",
   "keywords": [
-    "sms", "phone", "twilio", "appointment reminders", "automation", "django", "celery"
+    "sms", "phone", "twilio", "appointment reminders", "automation", "django", "dramatiq"
   ],
   "addons": [
     "heroku-postgresql:hobby-dev",

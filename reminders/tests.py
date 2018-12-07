@@ -2,8 +2,8 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 from model_mommy import mommy
 
-from .models import Appointment
-from .tasks import send_sms_reminder
+from reminders.models import Appointment
+from reminders.tasks import send_sms_reminder
 
 import arrow
 
@@ -18,68 +18,77 @@ else:
 
 class AppointmentTest(TestCase):
 
-    def test_str(self):
+    @patch('reminders.models.Appointment.schedule_reminder', return_value='fake-id')
+    def test_str(self, _):
         # Arrange
         appointment = mommy.make(Appointment, name='John')
 
         # Assert
-        self.assertEqual(str(appointment), 'Appointment #{0} - {1}'
-            .format(appointment.pk, appointment.name))
+        self.assertEqual(
+            str(appointment),
+            'Appointment #{0} - {1}'.format(appointment.pk, appointment.name))
 
-    def test_get_absolute_url(self):
+    @patch('reminders.models.Appointment.schedule_reminder', return_value='fake-id')
+    def test_get_absolute_url(self, _):
         # Arrange
         appointment = mommy.make(Appointment)
 
         # Assert
-        self.assertEqual(appointment.get_absolute_url(),
+        self.assertEqual(
+            appointment.get_absolute_url(),
             '/appointments/{0}'.format(appointment.pk))
 
-    def test_clean_invalid_appointment(self):
+    @patch('reminders.models.Appointment.schedule_reminder', return_value='fake-id')
+    def test_clean_invalid_appointment(self, _):
         # Arrange
         time_in_past = arrow.utcnow().replace(minutes=-10)
-        appointment = mommy.make(Appointment, time=time_in_past.datetime, time_zone='UTC')
+        appointment = mommy.make(Appointment, time=time_in_past.datetime)
 
         # Assert
         with self.assertRaises(ValidationError):
             appointment.clean()
 
-    def test_clean_valid_appointment(self):
+    @patch('reminders.models.Appointment.schedule_reminder', return_value='fake-id')
+    def test_clean_valid_appointment(self, _):
         # Arrange
         time_in_future = arrow.utcnow().replace(minutes=+10)
-        appointment = mommy.make(Appointment, time=time_in_future.datetime, time_zone='UTC')
+        appointment = mommy.make(Appointment, time=time_in_future.datetime)
 
         # Assert
         try:
             appointment.clean()
         except ValidationError:
-            self.fail('appointment with time in the past raised ValidationError')
+            self.fail(
+                'appointment with time in the past raised ValidationError')
 
     def test_schedule_reminder(self):
         # Arrange
-        appointment = mommy.make(Appointment)
+        with patch('reminders.models.Appointment.schedule_reminder', return_value='fake-id'):
+            appointment = mommy.make(Appointment)
 
         # Act
-        with patch.object(send_sms_reminder, 'apply_async') as mock:
+        with patch.object(send_sms_reminder, 'send_with_options') as mock:
             appointment.schedule_reminder()
 
         # Assert
         self.assertTrue(mock.called)
 
-    def test_save_initial_creation(self):
+    @patch('reminders.models.Appointment.schedule_reminder', return_value='fake-id')
+    def test_save_initial_creation(self, mock):
         # Act
-        with patch.object(Appointment, 'schedule_reminder', return_value=123) as mock:
-            appointment = mommy.make(Appointment)
+        appointment = mommy.make(Appointment)
 
         # Assert
         self.assertTrue(mock.called)
-        self.assertEqual(appointment.task_id, 123)
+        self.assertEqual(appointment.task_id, 'fake-id')
 
-    def test_save_revoke_existing_task(self):
+    @patch('reminders.models.Appointment.schedule_reminder', return_value='fake-id')
+    def test_save_revoke_existing_task(self, _):
         # Arrange
         appointment = mommy.make(Appointment)
 
         # Act
-        with patch('appointments.settings.celery_app.control.revoke') as mock:
+        with patch('reminders.models.Appointment.cancel_task') as mock:
             appointment.save()
 
         # Assert
@@ -87,8 +96,8 @@ class AppointmentTest(TestCase):
 
 
 class SendReminderTest(TestCase):
-
-    def test_create_message(self):
+    @patch('reminders.models.Appointment.schedule_reminder', return_value='fake-id')
+    def test_create_message(self, _):
         # Arrange
         appointment = mommy.make(Appointment)
 
@@ -99,7 +108,8 @@ class SendReminderTest(TestCase):
         # Assert
         self.assertTrue(mock.called)
 
-    def test_deleted_appointment(self):
+    @patch('reminders.models.Appointment.schedule_reminder', return_value='fake-id')
+    def test_deleted_appointment(self, _):
         # Arrange
         appointment = mommy.make(Appointment)
         appointment.delete()
