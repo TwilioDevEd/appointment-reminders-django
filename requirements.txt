@@ -1,7 +1,7 @@
 # Requirements for the appointments Django project
 
 # Django
-Django==2.1.4
+Django==2.1.15
 
 # Third-party app dependencies
 arrow==0.12.1
