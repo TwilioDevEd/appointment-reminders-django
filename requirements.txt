@@ -7,7 +7,7 @@ Django==2.1.4
 arrow==0.12.1
 django-dramatiq==0.1.5
 dramatiq[rabbitmq,watch]==1.4
-redis==3.0.1
+redis==3.4.1
 
 django-dotenv==1.4.2
 django-bootstrap3==11.0.0
