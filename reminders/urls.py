@@ -8,6 +8,8 @@ from .views import (
     AppointmentUpdateView,
 )
 
+app_name = 'reminders'
+
 urlpatterns = [
     # List and detail views
     re_path(r'^$', AppointmentListView.as_view(), name='list_appointments'),

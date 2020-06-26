@@ -6,7 +6,6 @@
     "sms", "phone", "twilio", "appointment reminders", "automation", "django", "dramatiq"
   ],
   "addons": [
-    "heroku-postgresql:hobby-dev",
     "redistogo:nano"
   ],
   "env": {
@@ -20,7 +19,7 @@
       "value": "enter_your_auth_token_here",
       "required": true
     },
-    "TWILIO_NUMBER": {
+    "TWILIO_PHONE_NUMBER": {
       "description": "The Twilio phone number you are using for this app. You can get one here: https://www.twilio.com/user/account/phone-numbers/incoming",
       "value": "+15005550006",
       "required": true

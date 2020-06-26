@@ -41,4 +41,4 @@ class AppointmentDeleteView(DeleteView):
     """Prompts users to confirm deletion of an appointment"""
 
     model = Appointment
-    success_url = reverse_lazy('list_appointments')
+    success_url = reverse_lazy('reminders:list_appointments')

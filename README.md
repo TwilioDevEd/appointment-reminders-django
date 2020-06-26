@@ -1,51 +1,169 @@
-# Appointment Reminders (Django)
+<a  href="https://www.twilio.com">
+<img  src="https://static0.twilio.com/marketing/bundles/marketing/img/logos/wordmark-red.svg"  alt="Twilio"  width="250"  />
+</a>
+ 
+# Twilio Sample App Template
 
-[![Build Status](https://travis-ci.org/TwilioDevEd/appointment-reminders-django.svg?branch=master)](https://travis-ci.org/TwilioDevEd/appointment-reminders-django)
+[![Actions Status](https://github.com/TwilioDevEd/appointment-reminders-django/workflows/Django%20CI/badge.svg)](https://github.com/TwilioDevEd/appointment-reminders-django/actions)
+
+## About
 
 Use Twilio to create automatic appointment reminders for your business's clients.
 
 [Read the full tutorial here](https://www.twilio.com/docs/tutorials/walkthrough/appointment-reminders/python/django)!
 
-## Quickstart
+Implementations in other languages:
+
+| .NET | Java | Ruby | PHP | NodeJS                                                        |
+| :--- | :--- | :--- | :-- | :------------------------------------------------------------ |
+| [Done](https://github.com/TwilioDevEd/appointment-reminders-csharp)  | [Done](https://github.com/TwilioDevEd/appointment-reminders-java)  | [Done](https://github.com/TwilioDevEd/appointment-reminders-rails)  | [Done](https://github.com/TwilioDevEd/appointment-reminders-laravel) | TBD |
+
+## Set up
+
+### Requirements
+
+- [Python](https://www.python.org/downloads) version >= **3.6.x**.
+- [ChromeDriver](https://chromedriver.chromium.org/) for the `Selenium` tests. Ensure the `chromedriver` executable is on the OS `path`. For Linux/Mac the easiest way to do this is to install it through the OS package manager:
+  - Mac:
+    ```bash
+    brew cask install chromedriver
+    ```
+  - Ubuntu:
+    ```bash
+    sudo apt-get install chromium-chromedriver
+    sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver
+    ```
+- [Redis](http://redis.io/) as its task queue.
+- A Twilio account - [sign up](https://www.twilio.com/try-twilio)
+
+### Twilio Account Settings
+
+This application should give you a ready-made starting point for writing your
+own appointment reminder application. Before we begin, we need to collect
+all the config values we need to run the application:
+
+| Config Value | Description                                                                                                                                                  |
+| :---------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TWILIO_ACCOUNT_SID  | Your primary Twilio account identifier - find this [in the Console](https://www.twilio.com/console).                                                         |
+| TWILIO_AUTH_TOKEN   | Used to authenticate - [just like the above, you'll find this here](https://www.twilio.com/console).                                                         |
+| TWILIO_PHONE_NUMBER | A Twilio phone number in [E.164 format](https://en.wikipedia.org/wiki/E.164) - you can [get one here](https://www.twilio.com/console/phone-numbers/incoming) |
 
 ### Local development
 
-This project is built using the [Django](https://www.djangoproject.com/) web framework. It runs on Python 3.6+.
+After the above requirements have been met:
 
-To run the app locally, first clone this repository and `cd` into its directory. Then:
+1. Clone this repository and `cd` into it.
 
-1. Create a new virtual environment:
-    - If using vanilla [virtualenv](https://virtualenv.pypa.io/en/latest/), run `virtualenv venv` and then `source venv/bin/activate`
-    - If using [virtualenvwrapper](https://virtualenvwrapper.readthedocs.org/en/latest/), run `mkvirtualenv appointments`
-1. Install the requirements with `pip install -r requirements.txt`
-1. Start a local PostgreSQL database and create a database called `appointment_reminders`
-    - If on a Mac, I recommend [Postgres.app](http://postgresapp.com/). After install, open psql and run `CREATE DATABASE appointment_reminders;`
-    - If Postgres is already installed locally, you can just run `createdb appointment_reminders` from a terminal
-1. Run the migrations with `python manage.py migrate`
-1. Optionally create a superuser so you can access the Django admin: `python manage.py createsuperuser`
-1. Copy the `.env_example` file to `.env`, and edit it to include your Twilio API credentials (found at https://www.twilio.com/user/account/voice)
-1. Start the development server: `python manage.py runserver`
+   ```bash
+   git clone https://github.com/TwilioDevEd/appointment-reminders-django.git
+   cd appointment-reminders-django
+   ```
+
+2. Create a virtual environment, activate it and install dependencies.
+
+   ```bash
+   make install
+   ```
+
+3. Set your environment variables.
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   See [Twilio Account Settings](#twilio-account-settings) to locate the necessary environment variables.
+
+4. Run migrations.
+   ```bash
+   make serve-setup
+   ```
+
+5. Configure pre-commit hooks.
+
+   ```bash
+   pre-commit install
+   ```
+
+6. Run the application.
+
+   ```bash
+   make serve
+   ```
+
+   This will start a development server on port `8000`. It will reload whenever you change any files.
 
 This project uses [Dramatiq](https://dramatiq.io) to asynchronously send SMS reminders to users. To start the Dramatiq process:
 
-1. This project uses [Redis](http://redis.io/) as its task queue. Install and start Redis
-1. Start a new terminal session and activate your virtual environment
-1. Start the Dramatiq worker with the command: `python manage.py rundramatiq`
+7. Start [Redis](http://redis.io/).
+8. Start a new terminal session and activate your virtual environment.
+9. Open a new terminal session and start Dramatiq worker with the command:
+   ```bash
+   make start-dramatiq
+   ```
 
-You can then visit the application at [http://localhost:8000/](http://localhost:8000/).
+10. Navigate to [http://localhost:8000/](http://localhost:8000/).
+
+That's it!
+
+### Docker
+
+If you have [Docker](https://www.docker.com/) already installed on your machine, you can use our `docker-compose.yml` to setup your project.
+
+1. Make sure you have the project cloned.
+2. Setup the `.env` file as outlined in the [Local Development](#local-development) steps.
+3. Run `docker-compose up`.
 
 
-## Notes
+### Tests
 
-Because of [django-dotenv](https://github.com/jpadilla/django-dotenv) there is no need to `source` your `.env` file, this is done automagically.
+**NOTE:** Be sure you have Google Chrome installed with the same version as the `chromedriver` installed earlier. Usually it's the latest version. 
 
+You can run the tests locally by typing:
 
-## Run the tests
-
-You can run the tests locally through [coverage](http://coverage.readthedocs.org/en/coverage-3.7.1/#):
-
+```bash
+python3 manage.py test
 ```
-$ coverage run manage.py test --settings=appointments.settings.test
-```
 
-You can then view the results with `coverage report` or build an HTML report with `coverage html`.
+### Cloud deployment
+
+Additionally to trying out this application locally, you can deploy it to a variety of host services. Here is a small selection of them.
+
+Please be aware that some of these might charge you for the usage or might make the source code for this application visible to the public. When in doubt research the respective hosting service first.
+
+| Service                           |                                                                                                                                                                |
+| :-------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Heroku](https://www.heroku.com/) | [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/TwilioDevEd/sample-template-django/tree/master) |
+
+**Some notes:**
+
+- For Heroku, please [check this](https://devcenter.heroku.com/articles/django-app-configuration) to properly configure the project for deployment.
+
+### Cloud deployment
+
+Additionally to trying out this application locally, you can deploy it to a variety of host services. Here is a small selection of them.
+
+Please be aware that some of these might charge you for the usage or might make the source code for this application visible to the public. When in doubt research the respective hosting service first.
+
+| Service                           |                                                                                                                                                                                                                           |
+| :-------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [Heroku](https://www.heroku.com/) | [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)                                                                                                                                       |
+
+## Resources
+
+- The CodeExchange repository can be found [here](https://github.com/twilio-labs/code-exchange/).
+
+## Contributing
+
+This template is open source and welcomes contributions. All contributions are subject to our [Code of Conduct](https://github.com/twilio-labs/.github/blob/master/CODE_OF_CONDUCT.md).
+
+[Visit the project on GitHub](https://github.com/twilio-labs/sample-template-nodejs)
+
+## License
+
+[MIT](http://www.opensource.org/licenses/mit-license.html)
+
+## Disclaimer
+
+No warranty expressed or implied. Software is as is.
+
+[twilio]: https://www.twilio.com
