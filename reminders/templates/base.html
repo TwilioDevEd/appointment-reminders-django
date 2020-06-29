@@ -31,8 +31,8 @@
         <a class="navbar-brand" href="/">Appointment Reminders</a>
         <div class="navbar-collapse collapse navbar-responsive-collapse">
           <ul class="nav navbar-nav">
-            <li><a href="{% url 'new_appointment' %}">New</a></li>
-            <li><a href="{% url 'list_appointments' %}">List</a></li>
+            <li><a href="{% url 'reminders:new_appointment' %}">New</a></li>
+            <li><a href="{% url 'reminders:list_appointments' %}">List</a></li>
           </ul>
         </div>
       </div>
@@ -50,8 +50,8 @@
 
       {% block content %}{% endblock content %}
 
-      <footer>
-        <p>&copy; Company 2015</p>
+      <footer class="text-center">Made with ❤️ by your pals
+        <a href="http://www.twilio.com">@twilio</a>
       </footer>
 
     </div> <!-- /container -->

@@ -34,5 +34,5 @@ def send_sms_reminder(appointment_id):
     client.messages.create(
         body=body,
         to=appointment.phone_number,
-        from_=settings.TWILIO_NUMBER,
+        from_=settings.TWILIO_PHONE_NUMBER,
     )

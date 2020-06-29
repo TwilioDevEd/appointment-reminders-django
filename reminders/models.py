@@ -3,9 +3,10 @@ from __future__ import unicode_literals
 import redis
 
 from django.core.exceptions import ValidationError
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
-from django.utils.encoding import python_2_unicode_compatible
+from six import python_2_unicode_compatible
 from timezone_field import TimeZoneField
 
 import arrow
@@ -26,7 +27,7 @@ class Appointment(models.Model):
         return 'Appointment #{0} - {1}'.format(self.pk, self.name)
 
     def get_absolute_url(self):
-        return reverse('view_appointment', args=[str(self.id)])
+        return reverse('reminders:view_appointment', args=[str(self.id)])
 
     def clean(self):
         """Checks that appointments are not scheduled in the past"""
@@ -75,5 +76,5 @@ class Appointment(models.Model):
         super(Appointment, self).save(*args, **kwargs)
 
     def cancel_task(self):
-        redis_client = redis.Redis(host='localhost', port=6379, db=0)
+        redis_client = redis.Redis(host=settings.REDIS_LOCAL, port=6379, db=0)
         redis_client.hdel("dramatiq:default.DQ.msgs", self.task_id)

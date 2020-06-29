@@ -36,12 +36,12 @@ class AppointmentTest(TestCase):
         # Assert
         self.assertEqual(
             appointment.get_absolute_url(),
-            '/appointments/{0}'.format(appointment.pk))
+            '/{0}'.format(appointment.pk))
 
     @patch('reminders.models.Appointment.schedule_reminder', return_value='fake-id')
     def test_clean_invalid_appointment(self, _):
         # Arrange
-        time_in_past = arrow.utcnow().replace(minutes=-10)
+        time_in_past = arrow.utcnow().shift(minutes=-10)
         appointment = mommy.make(Appointment, time=time_in_past.datetime)
 
         # Assert
@@ -51,7 +51,7 @@ class AppointmentTest(TestCase):
     @patch('reminders.models.Appointment.schedule_reminder', return_value='fake-id')
     def test_clean_valid_appointment(self, _):
         # Arrange
-        time_in_future = arrow.utcnow().replace(minutes=+10)
+        time_in_future = arrow.utcnow().shift(minutes=+10)
         appointment = mommy.make(Appointment, time=time_in_future.datetime)
 
         # Assert
