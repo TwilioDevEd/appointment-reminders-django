@@ -13,7 +13,7 @@ decorator==4.4.2
 distlib==0.3.0
 Django==3.0.4
 django-dramatiq==0.9.1
-django-bootstrap3==14.0.0
+django-bootstrap3==14.2.0
 django-environ==0.4.5
 django-forms-bootstrap==3.1.0
 django-timezone-field==4.0
