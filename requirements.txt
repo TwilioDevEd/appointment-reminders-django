@@ -1,6 +1,6 @@
 appdirs==1.4.3
 appnope==0.1.0
-arrow==0.15.7
+arrow==1.0.2
 asgiref==3.2.5
 attrs==19.3.0
 backcall==0.1.0
