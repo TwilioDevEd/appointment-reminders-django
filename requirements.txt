@@ -10,7 +10,7 @@ cfgv==3.1.0
 chardet==3.0.4
 click==7.1.1
 decorator==4.4.2
-distlib==0.3.0
+distlib==0.3.6
 Django==3.0.4
 django-dramatiq==0.9.1
 django-bootstrap3==14.0.0
