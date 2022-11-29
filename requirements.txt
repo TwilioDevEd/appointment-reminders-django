@@ -53,7 +53,7 @@ selenium==3.141.0
 six==1.14.0
 sqlparse==0.3.1
 toml==0.10.0
-traitlets==4.3.3
+traitlets==5.6.0
 twilio==6.36.0
 typed-ast==1.4.1
 urllib3==1.25.8
