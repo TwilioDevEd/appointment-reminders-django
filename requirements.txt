@@ -5,7 +5,7 @@ asgiref==3.2.5
 attrs==19.3.0
 backcall==0.1.0
 black==19.10b0
-certifi==2019.11.28
+certifi==2022.12.7
 cfgv==3.1.0
 chardet==3.0.4
 click==7.1.1
