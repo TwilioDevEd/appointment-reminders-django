@@ -25,7 +25,7 @@ class AppointmentCreateView(SuccessMessageMixin, CreateView):
     """Powers a form to create a new appointment"""
 
     model = Appointment
-    fields = ['name', 'phone_number', 'time', 'time_zone']
+    fields = ['name', 'phone_number', 'time', 'time_zone', 'custom_message']
     success_message = 'Appointment successfully created.'
 
 
