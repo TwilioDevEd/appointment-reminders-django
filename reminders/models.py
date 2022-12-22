@@ -18,6 +18,7 @@ class Appointment(models.Model):
     phone_number = models.CharField(max_length=15)
     time = models.DateTimeField()
     time_zone = TimeZoneField(default='UTC')
+    custom_message = models.TextField()
 
     # Additional fields not visible to users
     task_id = models.CharField(max_length=50, blank=True, editable=False)
