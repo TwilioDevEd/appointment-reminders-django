@@ -61,3 +61,4 @@ virtualenv==20.0.10
 wcwidth==0.1.8
 whitenoise==5.1.0
 zipp==3.1.0
+setuptools>=65.5.1 # not directly required, pinned by Snyk to avoid a vulnerability
