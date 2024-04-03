@@ -45,7 +45,7 @@ pyflakes==2.1.1
 Pygments==2.6.1
 PyJWT==1.7.1
 pytz==2019.3
-PyYAML==5.3
+PyYAML==5.4
 redis==3.5.3
 regex==2020.2.20
 requests==2.23.0
