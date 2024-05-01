@@ -7,7 +7,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-20.04, macos-13]
         python: ["3.6", "3.7", "3.8"]
 
     steps:
@@ -15,9 +15,11 @@ jobs:
         uses: actions/checkout@v2
       - name: Install Selenium Chrome Driver (OSX)
         if: runner.os == 'macOs'
-        run: brew cask install chromedriver
+        run: |
+          rm /usr/local/bin/chromedriver 
+          brew install --cask chromedriver
       - name: Setup Python ${{ matrix.python }}
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
       - name: Install dependencies
