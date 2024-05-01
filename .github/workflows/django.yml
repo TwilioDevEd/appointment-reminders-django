@@ -17,7 +17,7 @@ jobs:
         if: runner.os == 'macOs'
         run: brew install chromedriver --cask
       - name: Setup Python ${{ matrix.python }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
       - name: Install dependencies
