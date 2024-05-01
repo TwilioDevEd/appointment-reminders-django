@@ -26,7 +26,7 @@ Implementations in other languages:
 - [ChromeDriver](https://chromedriver.chromium.org/) for the `Selenium` tests. Ensure the `chromedriver` executable is on the OS `path`. For Linux/Mac the easiest way to do this is to install it through the OS package manager:
   - Mac:
     ```bash
-    brew cask install chromedriver
+    brew install --cask chromedriver
     ```
   - Ubuntu:
     ```bash
