@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Install Selenium Chrome Driver (OSX)
         if: runner.os == 'macOs'
-        run: brew cask install chromedriver
+        run: brew install --cask chromedriver
       - name: Setup Python ${{ matrix.python }}
         uses: actions/setup-python@v5
         with:
