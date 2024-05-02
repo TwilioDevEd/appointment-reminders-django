@@ -40,7 +40,7 @@ pickleshare==0.7.5
 pre-commit==2.2.0
 prompt-toolkit==3.0.4
 ptyprocess==0.6.0
-pycodestyle==2.5.0
+pycodestyle==2.10.0
 pyflakes==2.1.1
 Pygments==2.6.1
 PyJWT==1.7.1
