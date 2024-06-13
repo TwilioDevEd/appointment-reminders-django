@@ -48,7 +48,7 @@ pytz==2019.3
 PyYAML==5.4
 redis==3.5.3
 regex==2020.2.20
-requests==2.23.0
+requests==2.31.0
 selenium==3.141.0
 six==1.14.0
 sqlparse==0.3.1
