@@ -11,7 +11,7 @@ chardet==3.0.4
 click==7.1.1
 decorator==4.4.2
 distlib==0.3.0
-Django==3.2.14
+Django==4.2.17
 django-dramatiq==0.9.1
 django-bootstrap3==14.0.0
 django-environ==0.4.5
